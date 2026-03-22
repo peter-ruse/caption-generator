@@ -5,7 +5,7 @@ from services.models import Provider
 
 
 class LLMServiceFactory:
-    _instances = dict()
+    _instances = {}
 
     @classmethod
     def get_service_from_provider(cls, provider: Provider) -> LLMService:
