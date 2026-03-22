@@ -35,12 +35,12 @@ class GeminiService(LLMService):
     ) -> str | None:
         prompt = (
             f"Write {caption_style.value.length_in_sentences} sentences, with emojis where appropriate, "
-            f"summarizing the following article titled '{title}': {text}"
+            f"summarizing the article '{title}': {text}"
         )
 
         system_instruction = (
             "Act as a professional social media strategist. "
-            "Output only the caption text itself. "
+            "Output only the caption text followed by a small cluster of 3-5 relevant and trending hashtags. "
             "Do NOT include introductions, explanations, multiple options, or conversational filler. "
             "Do NOT exceed the specified number of sentences."
             f"Adhere to {social_media_platform}'s specific character limits and cultural tone."
