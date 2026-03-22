@@ -35,7 +35,7 @@ async def generate_caption(request: GenerateCaptionRequest):
                     <div>
                         <h3 class="text-sm font-semibold text-rose-800 uppercase tracking-tight">Generation Error</h3>
                         <p class="text-sm text-rose-700 leading-relaxed mt-1">
-                            We couldn't generate a caption, probably due to an API issue. Please come back and try again later.
+                            Sorry, we couldn't generate a caption, probably due to an API issue. Please come back and try again later.
                         </p>
                     </div>
                 </div>
