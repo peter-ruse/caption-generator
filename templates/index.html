@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Caption Generator</title>
+    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+    <script src="https://unpkg.com/htmx-ext-sse@2.2.2/sse.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .htmx-indicator {
+        display: none;
+      }
+      .htmx-request .htmx-indicator {
+        display: inline-block;
+      }
+      .fade-in {
+        animation: fadeIn 0.4s ease-in;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-zinc-50 min-h-screen flex flex-col items-center p-4 pt-12 font-sans text-zinc-900"
+  >
+    <div
+      class="w-full max-w-md bg-white rounded-3xl shadow-sm border border-zinc-200 p-6 space-y-8"
+    >
+      <header class="text-center space-y-1">
+        <h1 class="text-xl font-black tracking-tight uppercase">
+          Caption Generator
+        </h1>
+        <div class="h-1 w-12 bg-black mx-auto"></div>
+      </header>
+
+      <form
+        hx-post="/generate_caption"
+        hx-ext="json-enc"
+        hx-target="#output-window"
+        hx-swap="innerHTML"
+        class="space-y-6"
+      >
+        <input type="hidden" name="provider" value="gemini" />
+        <div>
+            <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Article Title</label>
+            <input type="text" name="title" required
+            class="w-full p-4 bg-zinc-50 border border-zinc-100 rounded-2xl focus:ring-1 focus:ring-black outline-none transition-all text-sm">
+        </div>
+
+        <div>
+            <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Article Link</label>
+            <input type="url" name="link" required
+            class="w-full p-4 bg-zinc-50 border border-zinc-100 rounded-2xl focus:ring-1 focus:ring-black outline-none transition-all text-sm">
+        </div>
+
+        <div>
+          <label
+            class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2"
+            >Article Text</label
+          >
+          <textarea
+            name="text"
+            rows="6"
+            required
+            class="w-full p-4 bg-zinc-50 border border-zinc-100 rounded-2xl focus:ring-1 focus:ring-black outline-none transition-all text-sm"
+          ></textarea>
+        </div>
+
+				<div>
+					<label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">
+						Target Social Media Platform
+					</label>
+					<div class="relative">
+						<select 
+							name="social_media_platform" 
+							required
+							class="w-full p-4 bg-zinc-50 border border-zinc-100 rounded-2xl focus:ring-1 focus:ring-black outline-none transition-all text-sm appearance-none cursor-pointer"
+						>
+							{% for platform in SocialMediaPlatform %}
+							<option value="{{ platform.value }}" {{ 'selected' if platform.name == 'INSTAGRAM' else '' }}>
+								{{ platform.value }}
+							</option>
+							{% endfor %}
+						</select>
+						
+						<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-zinc-400">
+							<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+							</svg>
+						</div>
+					</div>
+				</div>
+
+        <div class="grid grid-cols-3 gap-2">
+          {% for style in CaptionStyle %}
+          <label class="group">
+            <input
+              type="radio"
+              name="caption_style"
+              value="{{ style.name }}"
+              class="hidden peer"
+              {{ 'checked' if style.name == 'MEDIUM' else '' }}
+            />
+            <div
+              class="text-center py-3 border border-zinc-100 rounded-xl peer-checked:bg-black peer-checked:text-white peer-checked:border-black transition-all text-[11px] font-bold uppercase tracking-tighter cursor-pointer"
+            >
+              {{ style.value.label }}
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-black text-white py-4 rounded-2xl font-bold hover:bg-zinc-800 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+        >
+          <span>GENERATE</span>
+          <div
+            class="htmx-indicator animate-spin h-4 w-4 border-2 border-white/20 border-t-white rounded-full"
+          ></div>
+        </button>
+      </form>
+
+      <div
+        id="output-window"
+        class="min-h-[120px] bg-zinc-50 rounded-2xl p-5 border border-zinc-100 relative"
+      >
+        <p class="text-zinc-400 text-sm italic">The generated caption will appear here...</p>
+      </div>
+    </div>
+
+    <script>
+      function copyToClipboard() {
+        const text = document.getElementById("caption-text").innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.getElementById("copy-btn");
+          const original = btn.innerText;
+          btn.innerText = "COPIED!";
+          btn.classList.add(
+            "bg-green-50",
+            "border-green-200",
+            "text-green-700",
+          );
+          setTimeout(() => {
+            btn.innerText = original;
+            btn.classList.remove(
+              "bg-green-50",
+              "border-green-200",
+              "text-green-700",
+            );
+          }, 2000);
+        });
+      }
+    </script>
+  </body>
+</html>

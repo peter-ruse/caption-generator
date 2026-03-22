@@ -1,0 +1,42 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+ENV/
+.env
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# --- Airflow ---
+airflow.cfg
+airflow.db
+airflow.db.sql
+airflow-webserver.pid
+airflow-webserver.err
+airflow-webserver.out
+airflow-scheduler.err
+airflow-scheduler.out
+logs/
+dags/.airflowignore
+.airflow_db_initialised
+
+# --- Docker ---
+docker-compose.override.yml
+.dockerignore
+
+# --- IDEs/Editors ---
+.vscode/
+.idea/
+.DS_Store
+
+# --- Secret / Config ---
+.env
+.secrets/
+*.pem
