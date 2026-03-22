@@ -3,14 +3,14 @@ from typing import NamedTuple
 
 
 class StyleInfo(NamedTuple):
-    prompt: str
+    length_in_sentences: str
     label: str  # useful for the UI
 
 
 class CaptionStyle(Enum):
-    SHORT = StyleInfo(prompt="1-2 sentences", label="Short")
-    MEDIUM = StyleInfo(prompt="3-4 sentences", label="Medium")
-    LONG = StyleInfo(prompt="5-6 sentences", label="Long")
+    SHORT = StyleInfo(length_in_sentences="1-2", label="Short")
+    MEDIUM = StyleInfo(length_in_sentences="2-3", label="Medium")
+    LONG = StyleInfo(length_in_sentences="3-4", label="Long")
 
 
 class SocialMediaPlatform(StrEnum):

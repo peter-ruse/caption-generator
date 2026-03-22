@@ -17,16 +17,23 @@ class GeminiService(LLMService):
 
     def generate_caption(
         self,
+        title: str,
         text: str,
         caption_style: CaptionStyle,
         social_media_platform: SocialMediaPlatform,
     ) -> str:
-        prompt = f"Write {caption_style.value.prompt}, with emojis where appropriate, summarizing: {text}"
+        prompt = (
+            f"Write {caption_style.value.length_in_sentences} sentences, with emojis where appropriate, "
+            f"summarizing the following article titled '{title}': {text}"
+        )
+
+        print(f"{prompt[:100] = }")
 
         system_instruction = (
             "Act as a professional social media strategist. "
             "Output only the caption text itself. "
-            "Do not include introductions, explanations, multiple options, or conversational filler. "
+            "Do NOT include introductions, explanations, multiple options, or conversational filler. "
+            "Do NOT exceed the specified number of sentences."
             f"Adhere to {social_media_platform}'s specific character limits and cultural tone."
         )
 
