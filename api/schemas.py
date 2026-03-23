@@ -20,5 +20,5 @@ class GenerateCaptionRequest(BaseModel):
     text: str
     social_media_platform: SocialMediaPlatform
     caption_style: Annotated[str, AfterValidator(str_to_caption_style)]
-    custom_instruction: str
+    custom_instruction: str = ""
     provider: Provider = Provider.GEMINI
