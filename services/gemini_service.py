@@ -4,7 +4,6 @@ import sys
 from google import genai
 from google.genai import errors
 
-from core.enums import CaptionStyle, SocialMediaPlatform
 from services.base import LLMService
 
 logging.basicConfig(
@@ -26,26 +25,7 @@ class GeminiService(LLMService):
             "gemini-2.5-flash",
         ]
 
-    def generate_caption(
-        self,
-        title: str,
-        text: str,
-        caption_style: CaptionStyle,
-        social_media_platform: SocialMediaPlatform,
-    ) -> str | None:
-        prompt = (
-            f"Write {caption_style.value.length_in_sentences} sentences, with emojis where appropriate, "
-            f"summarizing the article '{title}': {text}"
-        )
-
-        system_instruction = (
-            "Act as a professional social media strategist. "
-            "Output only the caption text followed by a small cluster of 3-5 relevant and trending hashtags. "
-            "Do NOT include introductions, explanations, multiple options, or conversational filler. "
-            "Do NOT exceed the specified number of sentences."
-            f"Adhere to {social_media_platform}'s specific character limits and cultural tone."
-        )
-
+    def generate_caption(self, prompt: str, system_instruction: str) -> str | None:
         for model in self.models:
             try:
                 content = self.client.models.generate_content(
@@ -64,4 +44,4 @@ class GeminiService(LLMService):
             except errors.APIError as e:
                 logger.error(f"General API error: {e}")
             except Exception as e:
-                logger.error(f"An unexpected error occurred: {e}")
+                logger.exception(f"Unexpected error: {e}")

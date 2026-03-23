@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse
 
 from api.schemas import GenerateCaptionRequest
 from services.factory import LLMServiceFactory
+from services.prompt_manager import PromptManager
 
 router = APIRouter(tags=["generation"])
 
@@ -10,9 +11,13 @@ router = APIRouter(tags=["generation"])
 @router.post("/generate_caption")
 async def generate_caption(request: GenerateCaptionRequest):
     service = LLMServiceFactory.get_service_from_provider(request.provider)
-    caption = service.generate_caption(
-        request.title, request.text, request.caption_style, request.social_media_platform  # type: ignore
+    prompt = PromptManager.generate_prompt(
+        request.title, request.text, request.caption_style  # type: ignore
     )
+    system_instruction = PromptManager.generate_system_instruction(
+        request.social_media_platform, request.custom_instruction
+    )
+    caption = service.generate_caption(prompt, system_instruction)
 
     if caption:
         return HTMLResponse(
