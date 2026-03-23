@@ -13,7 +13,7 @@ class PromptManager:
     def generate_system_instruction(
         cls,
         social_media_platform: SocialMediaPlatform,
-        custom_instruction: str | None,
+        custom_instruction: str,
     ) -> str:
         base_instruction = (
             "Act as a professional social media strategist catering mostly to Australian tourists in Bali.\n"
@@ -23,7 +23,7 @@ class PromptManager:
             f"Adhere to {social_media_platform}'s specific character limits and cultural tone."
         )
 
-        if custom_instruction:
+        if custom_instruction := custom_instruction.strip():
             return (
                 f"{base_instruction}\n\nAdditional instruction:\n{custom_instruction}"
             )
