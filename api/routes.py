@@ -11,10 +11,10 @@ router = APIRouter(tags=["generation"])
 @router.post("/generate_caption")
 async def generate_caption(request: GenerateCaptionRequest):
     service = LLMServiceFactory.get_service_from_provider(request.provider)
-    prompt = PromptManager.generate_prompt(
+    prompt = PromptManager.build_prompt(
         request.title, request.text, request.caption_style  # type: ignore
     )
-    system_instruction = PromptManager.generate_system_instruction(
+    system_instruction = PromptManager.build_system_instruction(
         request.social_media_platform, request.custom_instruction
     )
     caption = service.generate_caption(prompt, system_instruction)

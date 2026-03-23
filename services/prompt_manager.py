@@ -3,14 +3,14 @@ from core.enums import CaptionStyle, SocialMediaPlatform
 
 class PromptManager:
     @classmethod
-    def generate_prompt(cls, title: str, text: str, caption_style: CaptionStyle) -> str:
+    def build_prompt(cls, title: str, text: str, caption_style: CaptionStyle) -> str:
         return (
             f"Write {caption_style.value.length_in_sentences} sentences, with emojis where appropriate, "
             f"summarizing the article '{title}': {text}"
         )
 
     @classmethod
-    def generate_system_instruction(
+    def build_system_instruction(
         cls,
         social_media_platform: SocialMediaPlatform,
         custom_instruction: str,
