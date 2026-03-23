@@ -110,7 +110,7 @@
 							class="w-full p-4 bg-zinc-50 border border-zinc-100 rounded-2xl focus:ring-1 focus:ring-black outline-none transition-all text-sm appearance-none cursor-pointer"
 						>
 							{% for platform in SocialMediaPlatform %}
-							<option value="{{ platform.value }}" {{ 'selected' if platform.name == 'INSTAGRAM' else '' }}>
+							<option value="{{ platform.value }}" {% if platform.name is sameas "INSTAGRAM" %}selected{% endif %}>
 								{{ platform.value }}
 							</option>
 							{% endfor %}
@@ -132,7 +132,7 @@
               name="caption_style"
               value="{{ style.name }}"
               class="hidden peer"
-              {{ 'checked' if style.name == 'MEDIUM' else '' }}
+              {% if style.name is sameas "MEDIUM" %}checked{% endif %}
             />
             <div
               class="text-center py-3 border border-zinc-100 rounded-xl peer-checked:bg-black peer-checked:text-white peer-checked:border-black transition-all text-[11px] font-bold uppercase tracking-tighter cursor-pointer"
