@@ -49,7 +49,7 @@
       <div class="flex flex-col items-center justify-center space-y-4 mb-8 w-full">
         <button 
           onclick="toggleDarkMode()" 
-          class="p-2 rounded-full bg-inherit hover:scale-125 transition-all focus:outline-none"
+          class="p-2 rounded-full bg-inherit hover:scale-125 focus:outline-none"
           aria-label="Toggle Dark Mode"
         >
           <svg class="w-6 h-6 hidden dark:block text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,13 +79,13 @@
         <div>
             <label for="title-input" class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Article Title</label>
             <input type="text" name="title" id="title-input" required
-            class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none transition-all text-sm">
+            class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none text-sm">
         </div>
 
         <div>
             <label for="link-input" class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Article Link</label>
             <input type="url" name="link" id="link-input" required
-            class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none transition-all text-sm">
+            class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none text-sm">
         </div>
 
         <div>
@@ -99,7 +99,7 @@
             id="text-input"
             rows="6"
             required
-            class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none transition-all text-sm"
+            class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none text-sm"
           ></textarea>
         </div>
 
@@ -113,7 +113,7 @@
             name="custom_instruction"
             id="custom_instruction_input"
             rows="6"
-            class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none transition-all text-sm"
+            class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none text-sm"
             placeholder="For example: Always make at least one reference to Australian culture"
           ></textarea>
         </div>
@@ -127,7 +127,7 @@
 							name="social_media_platform"
               id="social_media_platform_input"
 							required
-							class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none transition-all text-sm appearance-none cursor-pointer"
+							class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none text-sm appearance-none cursor-pointer"
 						>
 							{% for platform in SocialMediaPlatform %}
 							<option value="{{ platform.value }}" {% if platform.name is sameas "INSTAGRAM" %}selected{% endif %}>
@@ -160,7 +160,7 @@
                 class="hidden peer"
                 {% if style.name is sameas "MEDIUM" %}checked{% endif %}
               />
-              <div class="text-center py-3 border border-zinc-100 dark:border-zinc-800 rounded-xl peer-checked:bg-black dark:peer-checked:bg-white peer-checked:text-white dark:peer-checked:text-zinc-900 peer-checked:border-black dark:peer-checked:border-white transition-all text-[11px] font-bold uppercase tracking-tighter cursor-pointer">
+              <div class="text-center py-3 border border-zinc-100 dark:border-zinc-800 rounded-xl peer-checked:bg-black dark:peer-checked:bg-white peer-checked:text-white dark:peer-checked:text-zinc-900 peer-checked:border-black dark:peer-checked:border-white text-[11px] font-bold uppercase tracking-tighter cursor-pointer">
                 {{ style.value.label }}
               </div>
             </label>
@@ -170,7 +170,7 @@
 
         <button
           type="submit"
-          class="w-full bg-black dark:bg-zinc-200 text-white dark:text-zinc-900 py-4 rounded-2xl font-bold hover:bg-zinc-800 dark:hover:bg-white transition-all flex items-center justify-center gap-3"
+          class="w-full bg-black dark:bg-zinc-200 text-white dark:text-zinc-900 py-4 rounded-2xl font-bold hover:bg-zinc-800 dark:hover:bg-white flex items-center justify-center gap-3"
         >
           <span>GENERATE</span>
           <div
