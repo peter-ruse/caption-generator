@@ -22,9 +22,9 @@ async def generate_caption(request: GenerateCaptionRequest):
     if caption:
         return HTMLResponse(
             f"""
-            <div id="caption-text" class="text-gray-800 leading-relaxed whitespace-pre-wrap fade-in">{caption}\n\nFor more details, please visit {request.link}</div>
+            <div id="caption-text" class="text-zinc-800 dark:text-zinc-100 leading-relaxed whitespace-pre-wrap fade-in">{caption}\n\nFor more details, please visit {request.link}</div>
             <button onclick="copyToClipboard()" id="copy-btn" 
-                class="mt-6 w-full py-3 border border-black text-black font-bold rounded-xl hover:bg-gray-50 transition-all fade-in">
+                class="mt-6 w-full py-3 border border-black dark:border-zinc-500 text-black dark:text-zinc-100 font-bold rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all fade-in uppercase tracking-tight text-sm">
                 Copy to Clipboard
             </button>
             """
@@ -32,14 +32,17 @@ async def generate_caption(request: GenerateCaptionRequest):
     else:
         return HTMLResponse(
             """
-            <div id="caption-text" class="fade-in p-4 rounded-xl border border-rose-100 bg-rose-50/50">
+            <div id="caption-text" class="fade-in p-4 rounded-xl border border-rose-100 dark:border-rose-900/30 bg-rose-50/50 dark:bg-rose-950/20">
                 <div class="flex items-start gap-3">
-                    <svg class="w-5 h-5 text-rose-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-rose-500 dark:text-rose-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
+                    
                     <div>
-                        <h3 class="text-sm font-semibold text-rose-800 uppercase tracking-tight">Generation Error</h3>
-                        <p class="text-sm text-rose-700 leading-relaxed mt-1">
+                        <h3 class="text-sm font-semibold text-rose-800 dark:text-rose-200 uppercase tracking-tight">
+                            Generation Error
+                        </h3>
+                        <p class="text-sm text-rose-700 dark:text-rose-300/90 leading-relaxed mt-1">
                             Sorry, we couldn't generate a caption, probably due to an API issue. Please come back and try again later.
                         </p>
                     </div>
