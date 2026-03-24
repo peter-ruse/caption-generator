@@ -144,24 +144,29 @@
 					</div>
 				</div>
 
-        <div class="grid grid-cols-3 gap-2">
-          {% for style in CaptionStyle %}
-          <label class="group">
-            <input
-              type="radio"
-              name="caption_style"
-              value="{{ style.name }}"
-              class="hidden peer"
-              {% if style.name is sameas "MEDIUM" %}checked{% endif %}
-            />
-            <div
-              class="text-center py-3 border border-zinc-100 dark:border-zinc-800 rounded-xl peer-checked:bg-black dark:peer-checked:bg-white peer-checked:text-white dark:peer-checked:text-zinc-900 peer-checked:border-black transition-all text-[11px] font-bold uppercase tracking-tighter cursor-pointer"
-            >
-              {{ style.value.label }}
-            </div>
-          </label>
-          {% endfor %}
-        </div>
+        <fieldset class="space-y-2">
+          <legend class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">
+            Desired Caption Length
+          </legend>
+          
+          <div class="grid grid-cols-3 gap-2">
+            {% for style in CaptionStyle %}
+            <label class="group">
+              <input
+                type="radio"
+                name="caption_style"
+                id="style-{{ style.name }}"
+                value="{{ style.name }}"
+                class="hidden peer"
+                {% if style.name is sameas "MEDIUM" %}checked{% endif %}
+              />
+              <div class="text-center py-3 border border-zinc-100 dark:border-zinc-800 rounded-xl peer-checked:bg-black dark:peer-checked:bg-white peer-checked:text-white dark:peer-checked:text-zinc-900 peer-checked:border-black dark:peer-checked:border-white transition-all text-[11px] font-bold uppercase tracking-tighter cursor-pointer">
+                {{ style.value.label }}
+              </div>
+            </label>
+            {% endfor %}
+          </div>
+        </fieldset>
 
         <button
           type="submit"
