@@ -72,25 +72,54 @@
         hx-target="#output-window"
         hx-swap="innerHTML"
         class="space-y-6"
+        novalidate
+        x-data="{ tried: false }"
+        @submit="
+          tried = true; 
+          if (!$el.checkValidity()) { 
+            $event.preventDefault(); 
+            const firstInvalid = $el.querySelector(':invalid');
+            if (firstInvalid) {
+              firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              firstInvalid.focus();
+            }
+            return false; 
+          }
+        "
       >
         <input type="hidden" name="provider" value="gemini" />
-        <div>
-            <label for="title-input" class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Article Title</label>
+        <div x-data="{ val: '' }">
+            <label 
+              for="title-input" 
+              class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2"
+              :class="tried && !val ? 'text-rose-700 dark:text-rose-300/90' : 'text-zinc-400'"
+            >
+              Article Title
+            </label>
             <input type="text" name="title" id="title-input" required
             class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none text-sm">
         </div>
 
-        <div>
-            <label for="link-input" class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Article Link</label>
+        <div x-data="{ val: '' }">
+            <label 
+              for="link-input" 
+              class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2"
+              :class="tried && !val ? 'text-rose-700 dark:text-rose-300/90' : 'text-zinc-400'"
+            >
+              Article Link
+            </label>
             <input type="url" name="link" id="link-input" required
             class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none text-sm">
         </div>
 
-        <div>
+        <div x-data="{ val: '' }">
           <label
             for="text-input"
             class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2"
-            >Article Text</label
+            :class="tried && !val ? 'text-rose-700 dark:text-rose-300/90' : 'text-zinc-400'"
+            >
+              Article Text
+            </label
           >
           <textarea
             name="text"
@@ -190,7 +219,7 @@
         id="output-window"
         class="min-h-[120px] bg-zinc-50 dark:bg-zinc-950 rounded-2xl p-5 border border-zinc-100 dark:border-zinc-800 relative"
       >
-        <p class="text-zinc-400 dark:text-zinc-500 text-sm italic">The generated caption will appear here...</p>
+        <p class="text-zinc-400 dark:text-zinc-500 text-sm italic">Your caption will appear here...</p>
       </div>
     </div>
 
@@ -223,7 +252,6 @@
           
           btn.innerText = "COPIED ✓";
           
-          // Add both light and dark variants
           btn.classList.add(
             "bg-green-50", "dark:bg-green-900/30", 
             "border-green-200", "dark:border-green-800", 
@@ -232,7 +260,6 @@
 
           setTimeout(() => {
             btn.innerText = original;
-            // Remove both variants to reset the button
             btn.classList.remove(
               "bg-green-50", "dark:bg-green-900/30", 
               "border-green-200", "dark:border-green-800", 

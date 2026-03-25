@@ -12,17 +12,17 @@ router = APIRouter(tags=["generation"])
 async def generate_caption(request: GenerateCaptionRequest):
     service = LLMServiceFactory.get_service_from_provider(request.provider)
     prompt = PromptManager.build_prompt(
-        request.title, request.text, request.caption_style  # type: ignore
+        request.title, request.text, request.link, request.caption_style, request.custom_instruction  # type: ignore
     )
     system_instruction = PromptManager.build_system_instruction(
-        request.social_media_platform, request.custom_instruction
+        request.social_media_platform
     )
     caption = service.generate_caption(prompt, system_instruction)
 
     if caption:
         return HTMLResponse(
             f"""
-            <div id="caption-text" class="text-zinc-800 dark:text-zinc-100 leading-relaxed whitespace-pre-wrap fade-in">{caption}\n\nFor more details, please visit {request.link}</div>
+            <div id="caption-text" class="text-zinc-800 dark:text-zinc-100 leading-relaxed whitespace-pre-wrap fade-in">{caption}</div>
             <button onclick="copyToClipboard()" id="copy-btn" 
                 class="mt-6 w-full py-3 border border-black dark:border-zinc-500 text-black dark:text-zinc-100 font-bold rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all fade-in uppercase tracking-tight text-sm">
                 Copy to Clipboard
