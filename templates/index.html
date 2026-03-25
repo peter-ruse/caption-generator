@@ -74,6 +74,7 @@
         class="space-y-6"
         novalidate
         x-data="{ tried: false }"
+        hx-on::after-request="tried = false"
         @submit="
           tried = true; 
           if (!$el.checkValidity()) { 
@@ -96,7 +97,7 @@
             >
               Article Title
             </label>
-            <input type="text" name="title" id="title-input" required
+            <input type="text" name="title" id="title-input" x-model="val" required
             class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none text-sm">
         </div>
 
@@ -108,7 +109,7 @@
             >
               Article Link
             </label>
-            <input type="url" name="link" id="link-input" required
+            <input type="url" name="link" id="link-input" x-model="val" required
             class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none text-sm">
         </div>
 
@@ -126,6 +127,7 @@
             id="text-input"
             rows="6"
             required
+            x-model="val"
             class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none text-sm"
           ></textarea>
         </div>
@@ -165,12 +167,12 @@
           <div 
             x-show="open" 
             @click.away="open = false"
-            class="absolute z-10 mt-2 w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-xl overflow-hidden"
+            class="absolute z-10 mt-2 w-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-2xl dark:shadow-[0_0_25px_rgba(0,0,0,0.8)] overflow-hidden"
           >
             {% for platform in SocialMediaPlatform %}
             <div 
               @click="selected = '{{ platform.value }}'; open = false"
-              class="px-4 py-3 text-sm cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 border-b border-zinc-100 dark:border-zinc-800 last:border-none transition-colors"
+              class="px-4 py-3 text-sm cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-700 border-b border-zinc-100 dark:border-zinc-700/50 last:border-none transition-colors dark:hover:text-white"
             >
               {{ platform.value }}
             </div>

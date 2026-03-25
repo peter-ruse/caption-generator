@@ -41,6 +41,6 @@ class PromptManager:
             "ALWAYS output captions in the following form: a single engaging question about the topic, "
             "as a standalone paragraph, followed by a short informative paragraph on the topic consisting of 1-2 sentences, "
             "followed by a one-sentence paragraph directing people to the provided link, "
-            "always making sure to put blank lines between paragraphs.\n\n"
+            "always making sure to put blank lines between paragraphs.\n"
             f"Adhere to {social_media_platform}'s specific character limits and cultural tone."
         )
