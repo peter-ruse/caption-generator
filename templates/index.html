@@ -11,6 +11,7 @@
     <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
     <script src="https://unpkg.com/htmx-ext-sse@2.2.2/sse.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script shadow>
       tailwind.config = {
         darkMode: 'class',
@@ -118,31 +119,40 @@
           ></textarea>
         </div>
 
-				<div>
-					<label for="social_media_platform_input" class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">
-						Target Social Media Platform
-					</label>
-					<div class="relative">
-						<select 
-							name="social_media_platform"
-              id="social_media_platform_input"
-							required
-							class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none text-sm appearance-none cursor-pointer"
-						>
-							{% for platform in SocialMediaPlatform %}
-							<option value="{{ platform.value }}" {% if platform.name is sameas "INSTAGRAM" %}selected{% endif %}>
-								{{ platform.value }}
-							</option>
-							{% endfor %}
-						</select>
-						
-						<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-zinc-400 dark:text-zinc-500">
-							<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-							</svg>
-						</div>
-					</div>
-				</div>
+				<div class="relative" x-data="{ open: false, selected: 'Instagram' }">
+          <label for="social-media-picker" class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">
+            Target Social Media Platform
+          </label>
+          
+          <button 
+            id="social-media-picker"
+            @click="open = !open"
+            type="button"
+            class="w-full flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl text-sm transition-all focus:ring-1 focus:ring-black dark:focus:ring-zinc-400"
+          >
+            <span x-text="selected"></span>
+            <svg class="h-4 w-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div 
+            x-show="open" 
+            @click.away="open = false"
+            class="absolute z-10 mt-2 w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-xl overflow-hidden fade-in"
+          >
+            {% for platform in SocialMediaPlatform %}
+            <div 
+              @click="selected = '{{ platform.value }}'; open = false"
+              class="px-4 py-3 text-sm cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 border-b border-zinc-100 dark:border-zinc-800 last:border-none transition-colors"
+            >
+              {{ platform.value }}
+            </div>
+            {% endfor %}
+          </div>
+          
+          <input type="hidden" name="social_media_platform" :value="selected">
+        </div>
 
         <fieldset class="space-y-2">
           <legend class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">
