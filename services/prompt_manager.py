@@ -33,7 +33,7 @@ class PromptManager:
         return (
             "Act as a professional social media strategist catering mostly to Australian tourists in Bali.\n"
             "Don't make any references to Australia or Australians unless specifically asked to.\n"
-            "Output only the requested content; don't append any hashtags or other filler.\n"
+            "Output only the requested content; don't append any hashtags or other filler unless explicitly requested.\n"
             "Do NOT include introductions, explanations, multiple options, or conversational filler.\n"
             "Adhere strictly to the specified number of sentences, sometimes stated as a range; "
             "e.g., '1-2 sentences' means at least one but not more than two sentences.\n"
