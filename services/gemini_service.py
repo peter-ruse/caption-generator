@@ -1,16 +1,10 @@
 import logging
-import sys
 
 from google import genai
 from google.genai import errors
 
 from services.base import LLMService
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)],
-)
 logger = logging.getLogger(__name__)
 
 

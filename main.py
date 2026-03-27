@@ -1,9 +1,18 @@
+import logging
+import sys
+
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from api.routes import router
 from core.enums import CaptionStyle, SocialMediaPlatform
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
+)
 
 app = FastAPI(
     title="Caption Generator", swagger_ui_parameters={"displayRequestDuration": True}
