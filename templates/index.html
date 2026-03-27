@@ -103,7 +103,7 @@
           <div x-show="messages['title-input']" x-cloak>
             <p class="text-[10px] text-rose-600 dark:text-rose-400 mb-2 italic" x-text="messages['title-input']"></p>
           </div>
-          <input type="text" name="title" id="title-input" x-model="val" @input="updateMessage($el.id)" required
+          <input type="text" name="title" id="title-input" autocomplete="off" x-model="val" @input="updateMessage($el.id)" required
           class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none text-sm">
         </div>
 
@@ -117,7 +117,7 @@
           <div x-show="messages['link-input']" x-cloak>
             <p class="text-[10px] text-rose-600 dark:text-rose-400 mb-2 italic" x-text="messages['link-input']"></p>
           </div>
-          <input type="url" name="link" id="link-input" x-model="val" @input="updateMessage($el.id)" required
+          <input type="url" name="link" id="link-input" autocomplete="off" x-model="val" @input="updateMessage($el.id)" required
           class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none text-sm">
         </div>
 
