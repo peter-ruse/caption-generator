@@ -19,18 +19,29 @@ class GeminiService(LLMService):
             "gemini-2.5-flash",
         ]
 
-    def generate_caption(self, prompt: str, system_instruction: str) -> str | None:
+    def generate_caption(
+        self, prompt: str, system_instruction: str
+    ) -> tuple[str, list[str]] | None:
         for model in self.models:
             try:
-                content = self.client.models.generate_content(
-                    model=model,
-                    contents=prompt,
-                    config={
-                        "system_instruction": system_instruction,
-                        "temperature": 0.7,
-                    },
+                content = (
+                    self.client.models.generate_content(
+                        model=model,
+                        contents=prompt,
+                        config={
+                            "system_instruction": system_instruction,
+                            "temperature": 0.7,
+                        },
+                    ).text
+                    or ""
                 )
-                return content.text or ""
+
+                if "TAGS:" in content:
+                    caption, tags = content.split("TAGS:")
+                    caption = caption.strip()
+                    tags = tags.strip().split()
+                    return caption, tags
+                return content, ["Bali", "BaliLife", "TravelBali", "VisitBali"]
             except errors.ClientError as e:
                 logger.error(f"Client error: {e}")
             except errors.ServerError as e:

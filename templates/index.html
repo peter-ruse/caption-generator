@@ -36,6 +36,12 @@
         font-style: italic;
         color: #a1a1aa;
       }
+      html {
+        color-scheme: light;
+      }
+      html.dark {
+        color-scheme: dark;
+      }
     </style>
   </head>
   <body
@@ -282,6 +288,31 @@
           }, 2000);
         });
       }
+
+      function toggleTag(btn) {
+        const baseTemplate = document.getElementById("base-template");
+        const baseCaption = baseTemplate.textContent;
+
+        btn.classList.toggle('bg-black');
+        btn.classList.toggle('text-white');
+        btn.classList.toggle('dark:bg-white');
+        btn.classList.toggle('dark:text-zinc-900');
+        btn.classList.toggle('is-selected');
+
+        const selectedTags = Array.from(document.querySelectorAll('.tag-btn.is-selected')).map(b => b.getAttribute('data-tag'));
+        
+        const display = document.getElementById('caption-text');
+        
+        display.innerText = selectedTags.length > 0 
+          ? `${baseCaption}\n\n${selectedTags.join(' ')}` 
+          : baseCaption;
+      }
+
+      function copyFullCaption() {
+        const text = document.getElementById('caption-text').innerText;
+        navigator.clipboard.writeText(text);
+      }
     </script>
   </body>
 </html>
+
