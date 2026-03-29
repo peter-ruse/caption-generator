@@ -40,3 +40,11 @@ docker-compose.override.yml
 .env
 .secrets/
 *.pem
+
+# --- Compiled CSS Artifacts ---
+static/src
+static/dist
+
+# --- Tailwind Binaries ---
+tailwind
+tailwindcss-*
