@@ -277,28 +277,40 @@
       }
       
       function copyToClipboard() {
-        const text = document.getElementById("caption-text").innerText;
-        navigator.clipboard.writeText(text).then(() => {
-          const btn = document.getElementById("copy-btn");
-          const original = btn.innerText;
-          
-          btn.innerText = "COPIED ✓";
-          
-          btn.classList.add(
-            "bg-green-50", "dark:bg-green-900/30", 
-            "border-green-200", "dark:border-green-800", 
-            "text-green-700", "dark:text-green-400"
-          );
+          const text = document.getElementById("caption-text").innerText;
+          navigator.clipboard.writeText(text).then(() => {
+              const btn = document.getElementById("copy-btn");
+              const original = btn.innerText;
 
-          setTimeout(() => {
-            btn.innerText = original;
-            btn.classList.remove(
-              "bg-green-50", "dark:bg-green-900/30", 
-              "border-green-200", "dark:border-green-800", 
-              "text-green-700", "dark:text-green-400"
-            );
-          }, 2000);
-        });
+              btn.classList.remove(
+                "text-black", "dark:text-zinc-100", 
+                "border-black", "dark:border-zinc-500", 
+                "hover:bg-zinc-50", "dark:hover:bg-zinc-800"
+              );
+
+              btn.innerText = "COPIED ✓";
+          
+              btn.classList.add(
+                  "bg-green-50", "dark:bg-green-900/30", 
+                  "border-green-200", "dark:border-green-800", 
+                  "text-green-700", "dark:text-green-400"
+              );
+
+              setTimeout(() => {
+                  btn.innerText = original;
+                  btn.classList.remove(
+                      "bg-green-50", "dark:bg-green-900/30", 
+                      "border-green-200", "dark:border-green-800", 
+                      "text-green-700", "dark:text-green-400"
+                  );
+                  
+                  btn.classList.add(
+                    "text-black", "dark:text-zinc-100", 
+                    "border-black", "dark:border-zinc-500", 
+                    "hover:bg-zinc-50", "dark:hover:bg-zinc-800"
+                  );
+              }, 2000);
+          });
       }
 
       function toggleTag(btn) {
