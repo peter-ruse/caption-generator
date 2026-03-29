@@ -19,6 +19,7 @@
     <script src="https://unpkg.com/htmx-ext-sse@2.2.2/sse.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="/static/dist/main.css" rel="stylesheet">
+    <link href="/static/assets/favicon.svg" rel="icon" type="svg+xml">
     <style>
       .htmx-indicator {
         display: none;
@@ -259,8 +260,13 @@
       <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
         &copy; 2026 Artisanal Systems. All rights reserved.
       </p>
-      <p class="text-[9px] text-zinc-400/60 dark:text-zinc-500/40 italic">
-        Software built from first principles.
+      
+      <p class="flex items-center justify-center text-[9px] text-zinc-400/60 dark:text-zinc-500/40 italic">
+        <img src="/static/assets/favicon.svg" 
+            alt="" 
+            style="height: 20px; width: 20px; margin-right: 6px;" 
+            class="select-none grayscale" />
+        <span>Software built from first principles.</span>
       </p>
     </footer>
 
