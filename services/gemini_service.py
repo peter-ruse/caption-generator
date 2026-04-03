@@ -3,6 +3,7 @@ import logging
 from google import genai
 from google.genai import errors
 
+from config import gemini_settings
 from services.base import LLMService
 
 logger = logging.getLogger(__name__)
@@ -19,22 +20,20 @@ class GeminiService(LLMService):
             "gemini-2.5-flash",
         ]
 
-    def generate_caption(
+    async def generate_caption(
         self, prompt: str, system_instruction: str
     ) -> tuple[str, list[str]] | None:
         for model in self.models:
             try:
-                content = (
-                    self.client.models.generate_content(
-                        model=model,
-                        contents=prompt,
-                        config={
-                            "system_instruction": system_instruction,
-                            "temperature": 0.7,
-                        },
-                    ).text
-                    or ""
+                response = await self.client.aio.models.generate_content(
+                    model=model,
+                    contents=prompt,
+                    config={
+                        "system_instruction": system_instruction,
+                        "temperature": 0.7,
+                    },
                 )
+                content = response.text or ""
 
                 if "TAGS:" in content:
                     caption, tags = content.split("TAGS:")
@@ -50,3 +49,6 @@ class GeminiService(LLMService):
                 logger.error(f"General API error: {e}")
             except Exception as e:
                 logger.exception(f"Unexpected error: {e}")
+
+
+gemini_service = GeminiService(gemini_settings.raw_api_key)

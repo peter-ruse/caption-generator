@@ -17,7 +17,7 @@ async def generate_caption(request: GenerateCaptionRequest):
     system_instruction = PromptManager.build_system_instruction(
         request.social_media_platform
     )
-    result = service.generate_caption(prompt, system_instruction)
+    result = await service.generate_caption(prompt, system_instruction)
 
     if result:
         caption, tags = result

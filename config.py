@@ -9,3 +9,6 @@ class GeminiSettings(BaseSettings):
     @property
     def raw_api_key(self):
         return self.api_key.get_secret_value()
+
+
+gemini_settings = GeminiSettings()  # type: ignore

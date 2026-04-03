@@ -3,7 +3,7 @@ from typing import Annotated
 from pydantic import AfterValidator, BaseModel, HttpUrl
 
 from core.enums import CaptionStyle, SocialMediaPlatform
-from services.models import Provider
+from services.enums import Provider
 
 
 def http_url_to_str(url: HttpUrl) -> str:
