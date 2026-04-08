@@ -5,7 +5,7 @@ from api.schemas import GenerateCaptionRequest
 from services.factory import LLMServiceFactory
 from services.prompt_manager import PromptManager
 
-gen_router = APIRouter(prefix="/generate", tags=["generate"])
+gen_router = APIRouter(tags=["generate"])
 
 
 @gen_router.post("/generate_caption")
