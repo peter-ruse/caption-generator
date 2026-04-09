@@ -17,6 +17,7 @@
     <script src="https://unpkg.com/htmx.org@2.0.0"></script>
     <script src="https://unpkg.com/htmx-ext-json-enc@2.0.1/json-enc.js"></script>
     <script src="https://unpkg.com/htmx-ext-sse@2.2.2/sse.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="/static/dist/main.css" rel="stylesheet">
     <link href="/static/assets/favicon.svg" rel="icon" type="svg+xml">
@@ -112,7 +113,7 @@
         "
       >
         <input type="hidden" name="provider" value="gemini" />
-        <div x-data="{ val: '' }">
+        <div x-data="{ val: $persist('').as('persist_title') }">
           <label 
             for="title-input" 
             class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2"
@@ -126,7 +127,7 @@
           class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none text-sm">
         </div>
 
-        <div x-data="{ val: '' }">
+        <div x-data="{ val: $persist('').as('persist_link') }">
           <label 
             for="link-input" 
             class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2"
@@ -140,7 +141,7 @@
           class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none text-sm">
         </div>
 
-        <div x-data="{ val: '' }">
+        <div x-data="{ val: $persist('').as('persist_article') }">
           <label
             for="text-input"
             class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2"
@@ -162,7 +163,7 @@
           ></textarea>
         </div>
 
-        <div>
+        <div x-data="{ val: $persist('').as('persist_custom_instruction') }">
           <label
             for="custom_instruction_input"
             class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2"
@@ -177,7 +178,7 @@
           ></textarea>
         </div>
 
-				<div class="relative" x-data="{ open: false, selected: 'Instagram' }">
+				<div class="relative" x-data="{ open: false, selected: $persist('Instagram').as('persist_social_media_platform') }">
           <label for="social-media-picker" class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">
             Target Social Media Platform
           </label>
@@ -218,7 +219,7 @@
           <input type="hidden" name="social_media_platform" :value="selected">
         </div>
 
-        <fieldset class="space-y-2">
+        <fieldset class="space-y-2" x-data="{ style: $persist('MEDIUM').as('persist_caption_length') }">
           <legend class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">
             Desired Caption Length
           </legend>
@@ -231,8 +232,8 @@
                 name="caption_style"
                 id="style-{{ style.name }}"
                 value="{{ style.name }}"
+                x-model="style"
                 class="hidden peer"
-                {% if style.name is sameas "MEDIUM" %}checked{% endif %}
               />
               <div class="text-center py-3 border border-zinc-100 dark:border-zinc-800 rounded-xl peer-checked:bg-black dark:peer-checked:bg-white peer-checked:text-white dark:peer-checked:text-zinc-900 peer-checked:border-black dark:peer-checked:border-white text-[11px] font-bold uppercase tracking-tighter cursor-pointer">
                 {{ style.value.label }}
