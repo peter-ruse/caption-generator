@@ -83,14 +83,14 @@ def create_analytics_record(
     result: tuple[str, list[str]] | None,
     latency_ms: float,
     request: GenerateCaptionRequest,
-    model_used: str,
+    model: str | None,
 ) -> AnalyticsRecord:
     """Create analytics record from caption generation result"""
     if result:
         _, tags = result
         return AnalyticsRecord(
             timestamp=datetime.now(UTC),
-            model=model_used,
+            model=model,
             platform=str(request.social_media_platform),
             caption_style=cast(CaptionStyle, request.caption_style).name,
             success=True,
@@ -100,7 +100,7 @@ def create_analytics_record(
     else:
         return AnalyticsRecord(
             timestamp=datetime.now(UTC),
-            model=model_used,
+            model=model,
             platform=str(request.social_media_platform),
             caption_style=cast(CaptionStyle, request.caption_style).name,
             success=False,
@@ -128,9 +128,9 @@ async def generate_caption(
     result = await service.generate_caption(prompt, system_instruction)
 
     latency_ms = (time.time() - start_time) * 1000
-    model_used = service.last_used_model
+    model = service.model
 
-    record = create_analytics_record(result, latency_ms, request, model_used)
+    record = create_analytics_record(result, latency_ms, request, model)
     background_tasks.add_task(log_event_background, logger, record, db_conn)
 
     if result:
