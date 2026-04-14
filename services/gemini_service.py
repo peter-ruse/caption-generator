@@ -19,6 +19,7 @@ class GeminiService(LLMService):
             "gemini-2.5-flash-lite",
             "gemini-2.5-flash",
         ]
+        self.last_used_model: str | None = None
 
     async def generate_caption(
         self, prompt: str, system_instruction: str
@@ -34,6 +35,7 @@ class GeminiService(LLMService):
                     },
                 )
                 content = response.text or ""
+                self.last_used_model = model
 
                 if "TAGS:" in content:
                     caption, tags = content.split("TAGS:")
