@@ -14,7 +14,7 @@ def ensure_utc(timestamp: datetime) -> datetime:
 
 class AnalyticsRecord(BaseModel):
     timestamp: Annotated[datetime, AfterValidator(ensure_utc)]
-    model: str
+    model: str | None
     platform: str
     caption_style: str
     success: bool
