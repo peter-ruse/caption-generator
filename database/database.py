@@ -53,7 +53,7 @@ async def init_db():
             CREATE TABLE IF NOT EXISTS events (
                 id SERIAL PRIMARY KEY,
                 timestamp TIMESTAMPTZ NOT NULL,
-                model TEXT NOT NULL,
+                model TEXT,
                 platform TEXT NOT NULL,
                 caption_style TEXT NOT NULL,
                 success BOOLEAN NOT NULL,
