@@ -21,7 +21,7 @@ class GeminiService(LLMService):
             "gemini-2.5-flash",
         ]
         self.model: str | None = None
-        self.latency_ms: float | None = None
+        self.latency_ms: int | None = None
 
     async def generate_caption(
         self, prompt: str, system_instruction: str
@@ -39,7 +39,7 @@ class GeminiService(LLMService):
                         "temperature": 0.7,
                     },
                 )
-                self.latency_ms = (time.perf_counter() - start) * 1000.0
+                self.latency_ms = round((time.perf_counter() - start) * 1000)
                 content = response.text or ""
 
                 if "TAGS:" in content:

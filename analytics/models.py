@@ -18,6 +18,6 @@ class AnalyticsRecord(BaseModel):
     timestamp: Annotated[datetime, AfterValidator(ensure_utc)]
     success: bool
     model: str | None
-    latency_ms: float | None
+    latency_ms: int | None
     error_message: str | None = None
     tags_count: int = Field(default=0)

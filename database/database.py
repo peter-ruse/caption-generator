@@ -57,7 +57,7 @@ async def init_db():
                 platform TEXT NOT NULL,
                 caption_style TEXT NOT NULL,
                 success BOOLEAN NOT NULL,
-                latency_ms REAL NOT NULL,
+                latency_ms INTEGER NOT NULL,
                 error_message TEXT,
                 tags_count INTEGER DEFAULT 0
             )

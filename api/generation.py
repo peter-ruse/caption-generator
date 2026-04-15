@@ -83,7 +83,7 @@ def create_analytics_record(
     request: GenerateCaptionRequest,
     result: tuple[str, list[str]] | None,
     model: str | None,
-    latency_ms: float | None,
+    latency_ms: int | None,
 ) -> AnalyticsRecord:
     """Create analytics record from caption generation result"""
     if result:
