@@ -13,11 +13,11 @@ def ensure_utc(timestamp: datetime) -> datetime:
 
 
 class AnalyticsRecord(BaseModel):
-    timestamp: Annotated[datetime, AfterValidator(ensure_utc)]
-    model: str | None
     platform: str
     caption_style: str
+    timestamp: Annotated[datetime, AfterValidator(ensure_utc)]
     success: bool
-    latency_ms: float
+    model: str | None
+    latency_ms: float | None
     error_message: str | None = None
     tags_count: int = Field(default=0)

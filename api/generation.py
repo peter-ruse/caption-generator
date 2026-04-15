@@ -80,30 +80,30 @@ def build_error_response() -> HTMLResponse:
 
 
 def create_analytics_record(
-    result: tuple[str, list[str]] | None,
-    latency_ms: float,
     request: GenerateCaptionRequest,
+    result: tuple[str, list[str]] | None,
     model: str | None,
+    latency_ms: float | None,
 ) -> AnalyticsRecord:
     """Create analytics record from caption generation result"""
     if result:
         _, tags = result
         return AnalyticsRecord(
-            timestamp=datetime.now(UTC),
-            model=model,
             platform=str(request.social_media_platform),
             caption_style=cast(CaptionStyle, request.caption_style).name,
+            timestamp=datetime.now(UTC),
             success=True,
+            model=model,
             latency_ms=latency_ms,
             tags_count=len(tags),
         )
     else:
         return AnalyticsRecord(
-            timestamp=datetime.now(UTC),
-            model=model,
             platform=str(request.social_media_platform),
             caption_style=cast(CaptionStyle, request.caption_style).name,
+            timestamp=datetime.now(UTC),
             success=False,
+            model=model,
             latency_ms=latency_ms,
             error_message="Generation failed or returned None",
         )
@@ -116,8 +116,6 @@ async def generate_caption(
     logger: Annotated[AnalyticsLogger, Depends(get_analytics_logger)],
     db_conn: Annotated[Connection, Depends(get_db_conn)],
 ):
-    start_time = time.time()
-
     service = LLMServiceFactory.get_service_from_provider(request.provider)
     prompt = PromptManager.build_prompt(
         request.title, request.text, request.link, request.caption_style, request.custom_instruction  # type: ignore
@@ -127,10 +125,7 @@ async def generate_caption(
     )
     result = await service.generate_caption(prompt, system_instruction)
 
-    latency_ms = (time.time() - start_time) * 1000
-    model = service.model
-
-    record = create_analytics_record(result, latency_ms, request, model)
+    record = create_analytics_record(request, result, service.model, service.latency_ms)
     background_tasks.add_task(log_event_background, logger, record, db_conn)
 
     if result:

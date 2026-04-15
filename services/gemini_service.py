@@ -1,4 +1,5 @@
 import logging
+import time
 
 from google import genai
 from google.genai import errors
@@ -20,13 +21,16 @@ class GeminiService(LLMService):
             "gemini-2.5-flash",
         ]
         self.model: str | None = None
+        self.latency_ms: float | None = None
 
     async def generate_caption(
         self, prompt: str, system_instruction: str
     ) -> tuple[str, list[str]] | None:
         for model in self.models:
             self.model = model
+            self.latency_ms = None
             try:
+                start = time.perf_counter()
                 response = await self.client.aio.models.generate_content(
                     model=model,
                     contents=prompt,
@@ -35,6 +39,7 @@ class GeminiService(LLMService):
                         "temperature": 0.7,
                     },
                 )
+                self.latency_ms = (time.perf_counter() - start) * 1000.0
                 content = response.text or ""
 
                 if "TAGS:" in content:
