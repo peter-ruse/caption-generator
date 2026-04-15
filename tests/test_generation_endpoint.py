@@ -15,6 +15,7 @@ class DummyLogger:
 
 class DummyServiceSuccess:
     model = "dummy-model"
+    latency_ms = 100
 
     async def generate_caption(self, prompt: str, system_instruction: str):
         await asyncio.sleep(0.01)
@@ -22,7 +23,8 @@ class DummyServiceSuccess:
 
 
 class DummyServiceFailure:
-    model = "dummy-model"
+    model = None
+    latency_ms = None
 
     async def generate_caption(self, prompt: str, system_instruction: str):
         await asyncio.sleep(0.01)
