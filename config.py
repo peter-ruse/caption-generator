@@ -21,7 +21,7 @@ class PostgresqlSettings(BaseSettings):
     password: SecretStr = Field(validation_alias="POSTGRES_PASSWORD")
     host: str = Field(validation_alias="POSTGRES_HOST")
     port: int = Field(default=5432, validation_alias="POSTGRES_PORT")
-    database: int = Field(validation_alias="POSTGRES_DATABASE")
+    database: str = Field(validation_alias="POSTGRES_DATABASE")
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @property
