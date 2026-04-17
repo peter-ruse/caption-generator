@@ -3,10 +3,9 @@ import logging
 import asyncpg
 
 from config import postgresql_settings
+from utils.meta import SingletonMeta
 
 logger = logging.getLogger(__name__)
-
-from utils.meta import SingletonMeta
 
 
 class Database(metaclass=SingletonMeta):
