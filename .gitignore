@@ -27,6 +27,9 @@ logs/
 dags/.airflowignore
 .airflow_db_initialised
 
+# --- Database ---
+*.db*
+
 # --- Docker ---
 docker-compose.override.yml
 .dockerignore

@@ -278,41 +278,69 @@
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
       }
       
-      function copyToClipboard() {
-          const text = document.getElementById("caption-text").innerText;
-          navigator.clipboard.writeText(text).then(() => {
-              const btn = document.getElementById("copy-btn");
-              const original = btn.innerText;
+      async function copyToClipboard() {
+          const textEl = document.getElementById("caption-text");
+          const btn = document.getElementById("copy-btn");
 
-              btn.classList.remove(
-                "text-black", "dark:text-zinc-100", 
-                "border-black", "dark:border-zinc-500", 
-                "hover:bg-zinc-50", "dark:hover:bg-zinc-800"
-              );
+          if (!textEl || !btn) {
+            return;
+          }
 
-              btn.innerText = "COPIED ✓";
-          
-              btn.classList.add(
-                  "bg-green-50", "dark:bg-green-900/30", 
-                  "border-green-200", "dark:border-green-800", 
-                  "text-green-700", "dark:text-green-400"
-              );
+          const text = textEl.innerText;
+          const original = btn.innerText;
+          let copied = false;
 
-              setTimeout(() => {
-                  btn.innerText = original;
-                  btn.classList.remove(
-                      "bg-green-50", "dark:bg-green-900/30", 
-                      "border-green-200", "dark:border-green-800", 
-                      "text-green-700", "dark:text-green-400"
-                  );
-                  
-                  btn.classList.add(
-                    "text-black", "dark:text-zinc-100", 
-                    "border-black", "dark:border-zinc-500", 
-                    "hover:bg-zinc-50", "dark:hover:bg-zinc-800"
-                  );
-              }, 2000);
-          });
+          try {
+            if (navigator.clipboard && window.isSecureContext) {
+              await navigator.clipboard.writeText(text);
+              copied = true;
+            } else {
+              const ta = document.createElement("textarea");
+              ta.value = text;
+              ta.setAttribute("readonly", "");
+              ta.style.position = "absolute";
+              ta.style.left = "-9999px";
+              document.body.appendChild(ta);
+              ta.select();
+              copied = document.execCommand("copy");
+              document.body.removeChild(ta);
+            }
+          } catch (_err) {
+            copied = false;
+          }
+
+          if (!copied) {
+            return;
+          }
+
+          btn.classList.remove(
+            "text-black", "dark:text-zinc-100",
+            "border-black", "dark:border-zinc-500",
+            "hover:bg-zinc-50", "dark:hover:bg-zinc-800"
+          );
+
+          btn.innerText = "COPIED ✓";
+
+          btn.classList.add(
+            "bg-green-50", "dark:bg-green-900/30",
+            "border-green-200", "dark:border-green-800",
+            "text-green-700", "dark:text-green-400"
+          );
+
+          setTimeout(() => {
+            btn.innerText = original;
+            btn.classList.remove(
+              "bg-green-50", "dark:bg-green-900/30",
+              "border-green-200", "dark:border-green-800",
+              "text-green-700", "dark:text-green-400"
+            );
+
+            btn.classList.add(
+              "text-black", "dark:text-zinc-100",
+              "border-black", "dark:border-zinc-500",
+              "hover:bg-zinc-50", "dark:hover:bg-zinc-800"
+            );
+          }, 2000);
       }
 
       function toggleTag(btn) {
