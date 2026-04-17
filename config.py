@@ -17,12 +17,16 @@ class GeminiSettings(BaseSettings):
 
 
 class PostgresqlSettings(BaseSettings):
-    url: str = Field(validation_alias="POSTGRES_URL")
+    user: str = Field(validation_alias="POSTGRES_USER")
+    password: SecretStr = Field(validation_alias="POSTGRES_PASSWORD")
+    host: str = Field(validation_alias="POSTGRES_HOST")
+    port: int = Field(default=5432, validation_alias="POSTGRES_PORT")
+    database: int = Field(validation_alias="POSTGRES_DATABASE")
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @property
-    def raw_url(self):
-        return self.url
+    def raw_password(self):
+        return self.password.get_secret_value()
 
 
 app_settings = AppSettings()  # type: ignore
