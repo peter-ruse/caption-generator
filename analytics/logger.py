@@ -14,8 +14,8 @@ class AnalyticsLogger:
             await db_conn.execute(
                 """
                 INSERT INTO events 
-                (timestamp, model, platform, caption_style, success, latency_ms, error_message, tags_count)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                (timestamp, model, username, platform, caption_style, success, latency_ms, error_message, tags_count)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
                 """,
                 record.timestamp,
                 record.model,
