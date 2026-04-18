@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from api.dependencies import get_analytics_logger
-from api.generation import gen_router
+from api.routes.generation import gen_router
 from database.database import get_db_conn
 
 
@@ -43,7 +43,7 @@ def _make_client() -> TestClient:
 
 
 def test_generate_caption_success_renders_caption_and_tags(monkeypatch):
-    from services.factory import LLMServiceFactory
+    from services.llm.factory import LLMServiceFactory
 
     monkeypatch.setattr(
         LLMServiceFactory,
@@ -72,7 +72,7 @@ def test_generate_caption_success_renders_caption_and_tags(monkeypatch):
 
 
 def test_generate_caption_failure_renders_error(monkeypatch):
-    from services.factory import LLMServiceFactory
+    from services.llm.factory import LLMServiceFactory
 
     monkeypatch.setattr(
         LLMServiceFactory,

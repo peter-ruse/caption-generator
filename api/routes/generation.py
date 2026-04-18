@@ -1,4 +1,3 @@
-import time
 from datetime import UTC, datetime
 from typing import Annotated, cast
 
@@ -8,12 +7,12 @@ from fastapi.responses import HTMLResponse
 
 from analytics.logger import AnalyticsLogger
 from analytics.models import AnalyticsRecord
-from api.dependencies import get_analytics_logger
+from api.dependencies import get_analytics_logger, get_current_user
 from api.schemas import GenerateCaptionRequest
 from core.enums import CaptionStyle
 from database.database import get_db_conn
-from services.factory import LLMServiceFactory
-from services.prompt_manager import PromptManager
+from services.llm.factory import LLMServiceFactory
+from services.llm.prompt_manager import PromptManager
 
 gen_router = APIRouter(tags=["generate"])
 
@@ -80,6 +79,7 @@ def build_error_response() -> HTMLResponse:
 
 
 def create_analytics_record(
+    username: str,
     request: GenerateCaptionRequest,
     result: tuple[str, list[str]] | None,
     model: str | None,
@@ -89,6 +89,7 @@ def create_analytics_record(
     if result:
         _, tags = result
         return AnalyticsRecord(
+            username=username,
             platform=str(request.social_media_platform),
             caption_style=cast(CaptionStyle, request.caption_style).name,
             timestamp=datetime.now(UTC),
@@ -99,6 +100,7 @@ def create_analytics_record(
         )
     else:
         return AnalyticsRecord(
+            username=username,
             platform=str(request.social_media_platform),
             caption_style=cast(CaptionStyle, request.caption_style).name,
             timestamp=datetime.now(UTC),
@@ -115,6 +117,7 @@ async def generate_caption(
     background_tasks: BackgroundTasks,
     logger: Annotated[AnalyticsLogger, Depends(get_analytics_logger)],
     db_conn: Annotated[Connection, Depends(get_db_conn)],
+    username: Annotated[str, Depends(get_current_user)],
 ):
     service = LLMServiceFactory.get_service_from_provider(request.provider)
     prompt = PromptManager.build_prompt(
@@ -125,7 +128,9 @@ async def generate_caption(
     )
     result = await service.generate_caption(prompt, system_instruction)
 
-    record = create_analytics_record(request, result, service.model, service.latency_ms)
+    record = create_analytics_record(
+        username, request, result, service.model, service.latency_ms
+    )
     background_tasks.add_task(log_event_background, logger, record, db_conn)
 
     if result:

@@ -4,7 +4,20 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class AppSettings(BaseSettings):
     env: str = Field(validation_alias="ENV")
+
+    # for authentication
+    google_client_id: str = Field(validation_alias="GOOGLE_CLIENT_ID")
+    google_client_secret: SecretStr = Field(validation_alias="GOOGLE_CLIENT_SECRET")
+    google_discovery_url: str = Field(
+        default="https://accounts.google.com/.well-known/openid-configuration",
+        validation_alias="GOOGLE_DISCOVERY_URL",
+    )
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @property
+    def raw_google_client_secret(self):
+        return self.google_client_secret.get_secret_value()
 
 
 class GeminiSettings(BaseSettings):
@@ -29,6 +42,16 @@ class PostgresqlSettings(BaseSettings):
         return self.password.get_secret_value()
 
 
+class JWTSettings(BaseSettings):
+    secret_key: SecretStr = Field(validation_alias="SECRET_KEY")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @property
+    def raw_secret_key(self):
+        return self.secret_key.get_secret_value()
+
+
 app_settings = AppSettings()  # type: ignore
 gemini_settings = GeminiSettings()  # type: ignore
 postgresql_settings = PostgresqlSettings()  # type: ignore
+jwt_settings = JWTSettings()  # type: ignore

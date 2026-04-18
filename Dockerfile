@@ -13,8 +13,7 @@ COPY . .
 ARG TARGETPLATFORM
 RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; \
     then BINARY="tailwindcss-linux-arm64"; else BINARY="tailwindcss-linux-x64"; fi && \
-    curl -sLO "https://github.com/tailwindlabs/tailwindcss/releases/latest/download/${BINARY}" && \
-    mv "${BINARY}" tailwind && \
+    curl -fL -o tailwind "https://github.com/tailwindlabs/tailwindcss/releases/latest/download/${BINARY}" && \
     chmod +x tailwind && \
     mkdir -p static/src && printf '%s\n' \
     '@import "tailwindcss";' \

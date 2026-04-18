@@ -1,5 +1,5 @@
 from core.enums import CaptionStyle, SocialMediaPlatform
-from services.prompt_manager import PromptManager
+from services.llm.prompt_manager import PromptManager
 
 
 def test_build_prompt_includes_custom_instruction_when_provided() -> None:
@@ -31,9 +31,7 @@ def test_build_prompt_omits_custom_instruction_when_blank() -> None:
 
 
 def test_build_system_instruction_mentions_platform() -> None:
-    instruction = PromptManager.build_system_instruction(
-        SocialMediaPlatform.INSTAGRAM
-    )
+    instruction = PromptManager.build_system_instruction(SocialMediaPlatform.INSTAGRAM)
 
     assert "Instagram" in instruction
     assert "TAGS:" in instruction
