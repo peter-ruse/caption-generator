@@ -4,8 +4,8 @@ import time
 from google import genai
 from google.genai import errors
 
-from config import gemini_settings
-from services.base import LLMService
+from core.config import gemini_settings
+from services.llm.base import LLMService
 
 logger = logging.getLogger(__name__)
 

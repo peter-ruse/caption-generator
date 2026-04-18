@@ -59,8 +59,16 @@
     </style>
   </head>
   <body
-    class="bg-zinc-50 dark:bg-zinc-950 min-h-screen flex flex-col items-center p-4 pt-12 font-sans text-zinc-900 dark:text-zinc-100"
+    class="relative bg-zinc-50 dark:bg-zinc-950 min-h-screen flex flex-col items-center p-4 pt-12 font-sans text-zinc-900 dark:text-zinc-100"
   >
+    <div class="absolute top-4 right-6 flex items-center space-x-2">
+      <div class="flex flex-col items-end">
+        <span class="text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-400">Active User</span>
+        <span class="text-xs font-mono text-zinc-600 dark:text-zinc-400">{{ username }}</span>
+      </div>
+      <div class="h-8 w-px bg-zinc-200 dark:border-zinc-800"></div>
+    </div>
+    
     <div
       class="w-full max-w-md bg-white dark:bg-zinc-900 rounded-3xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-6 space-y-8"
     >

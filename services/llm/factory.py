@@ -1,6 +1,6 @@
-from services.base import LLMService
-from services.enums import Provider
-from services.gemini_service import gemini_service
+from services.llm.base import LLMService
+from services.llm.enums import Provider
+from services.llm.gemini_service import gemini_service
 
 
 class LLMServiceFactory:

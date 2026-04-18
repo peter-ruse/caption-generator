@@ -19,6 +19,7 @@ class AnalyticsLogger:
                 """,
                 record.timestamp,
                 record.model,
+                record.username,
                 record.platform,
                 record.caption_style,
                 record.success,

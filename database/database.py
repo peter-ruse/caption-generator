@@ -2,7 +2,7 @@ import logging
 
 import asyncpg
 
-from config import postgresql_settings
+from core.config import postgresql_settings
 from utils.meta import SingletonMeta
 
 logger = logging.getLogger(__name__)
@@ -56,6 +56,7 @@ async def init_db():
             CREATE TABLE IF NOT EXISTS events (
                 id SERIAL PRIMARY KEY,
                 timestamp TIMESTAMPTZ NOT NULL,
+                username TEXT,
                 model TEXT,
                 platform TEXT NOT NULL,
                 caption_style TEXT NOT NULL,
