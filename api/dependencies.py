@@ -6,6 +6,8 @@ from core.auth import decode_access_token
 
 
 def get_current_user(access_token: str = Cookie(None)):
+    # NOTE: FastAPI expects the arg name to exactly match the key
+    # that we passed in to set_cookie in the auth_callback path operation
     if not access_token:
         raise AuthRequiredException()
 
