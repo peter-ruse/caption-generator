@@ -382,7 +382,6 @@
               const timeout = (sessionExpiry * 1000) - Date.now();
 
               if (timeout > 0) {
-                  console.log(`Redirecting in ${timeout / 1000}s`);
                   setTimeout(() => {
                       window.location.href = '/login?reason=session_expired';
                   }, timeout);
