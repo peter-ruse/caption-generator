@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse
 
 from analytics.logger import AnalyticsLogger
 from analytics.models import AnalyticsRecord
-from api.dependencies import get_analytics_logger, get_current_user
+from api.dependencies import get_analytics_logger, get_current_session
 from api.schemas import GenerateCaptionRequest
 from core.enums import CaptionStyle
 from database.database import get_db_conn
@@ -117,7 +117,7 @@ async def generate_caption(
     background_tasks: BackgroundTasks,
     logger: Annotated[AnalyticsLogger, Depends(get_analytics_logger)],
     db_conn: Annotated[Connection, Depends(get_db_conn)],
-    username: Annotated[str, Depends(get_current_user)],
+    session: Annotated[dict, Depends(get_current_session)],
 ):
     service = LLMServiceFactory.get_service_from_provider(request.provider)
     prompt = PromptManager.build_prompt(
@@ -129,7 +129,7 @@ async def generate_caption(
     result = await service.generate_caption(prompt, system_instruction)
 
     record = create_analytics_record(
-        username, request, result, service.model, service.latency_ms
+        session["sub"], request, result, service.model, service.latency_ms
     )
     background_tasks.add_task(log_event_background, logger, record, db_conn)
 

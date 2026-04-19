@@ -5,19 +5,19 @@ from api.exceptions import AuthRequiredException
 from core.auth import decode_access_token
 
 
-def get_current_user(access_token: str = Cookie(None)):
+def get_current_session(access_token: str = Cookie(None)) -> dict:
     # NOTE: FastAPI expects the arg name to exactly match the key
     # that we passed in to set_cookie in the auth_callback path operation
     if not access_token:
         raise AuthRequiredException()
 
     try:
-        data = decode_access_token(access_token)
+        session = decode_access_token(access_token)
 
-        if (username := data.get("sub")) is None:
+        if session.get("sub") is None:
             raise AuthRequiredException()
 
-        return username
+        return session
     except Exception:
         raise AuthRequiredException()
 

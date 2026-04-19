@@ -8,7 +8,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from api.dependencies import get_current_user
+from api.dependencies import get_current_session
 from api.exceptions import AuthRequiredException
 from api.routes.analytics import analytics_router
 from api.routes.auth import auth_router
@@ -70,7 +70,7 @@ async def login(request: Request):
 @app.get("/", response_class=HTMLResponse)
 async def index(
     request: Request,
-    username: Annotated[str, Depends(get_current_user)],
+    session: Annotated[dict, Depends(get_current_session)],
 ):
     return templates.TemplateResponse(
         request=request,
@@ -78,6 +78,7 @@ async def index(
         context={
             "CaptionStyle": CaptionStyle,
             "SocialMediaPlatform": SocialMediaPlatform,
-            "username": username,
+            "username": session["sub"],
+            "session_expiry": session["exp"],
         },
     )
