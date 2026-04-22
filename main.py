@@ -1,6 +1,6 @@
 import logging
 import sys
-from contextlib import asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, Request
@@ -16,8 +16,8 @@ from api.routes.generation import gen_router
 from api.routes.health import health_router
 from core.config import app_settings
 from core.enums import CaptionStyle, SocialMediaPlatform
-from database.database import Database, init_db
-from services.auth.google_auth_service import google_auth_service
+from database.database import db_lifecycle
+from services.auth.google_auth_service import google_auth_lifecycle
 
 logging.basicConfig(
     level=logging.INFO,
@@ -35,13 +35,10 @@ if app_settings.env == "prod":
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    db = Database()
-    await db.connect()
-    await init_db()
-    google_auth_service.init_httpx_client()
-    yield
-    await google_auth_service.close_httpx_client()
-    await db.disconnect()
+    async with AsyncExitStack() as async_exit_stack:
+        await async_exit_stack.enter_async_context(db_lifecycle())
+        await async_exit_stack.enter_async_context(google_auth_lifecycle())
+        yield
 
 
 app = FastAPI(**fastapi_settings, lifespan=lifespan)

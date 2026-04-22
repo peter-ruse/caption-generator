@@ -54,25 +54,39 @@ async def get_db_conn() -> AsyncGenerator[asyncpg.Connection, None]:
 
 async def init_db():
     """Initialize database schema and tables"""
-    db = Database()
-    pool = await db.connect()
-
-    async with pool.acquire() as conn:
-        await conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS events (
-                id SERIAL PRIMARY KEY,
-                timestamp TIMESTAMPTZ NOT NULL,
-                username TEXT,
-                model TEXT,
-                platform TEXT NOT NULL,
-                caption_style TEXT NOT NULL,
-                success BOOLEAN NOT NULL,
-                latency_ms INTEGER NOT NULL,
-                error_message TEXT,
-                tags_count INTEGER DEFAULT 0
+    try:
+        async with acquire_db_conn() as conn:
+            await conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS events (
+                    id SERIAL PRIMARY KEY,
+                    timestamp TIMESTAMPTZ NOT NULL,
+                    username TEXT,
+                    model TEXT,
+                    platform TEXT NOT NULL,
+                    caption_style TEXT NOT NULL,
+                    success BOOLEAN NOT NULL,
+                    latency_ms INTEGER NOT NULL,
+                    error_message TEXT,
+                    tags_count INTEGER DEFAULT 0
+                )
+                """
             )
-            """
+
+        logger.info("Database initialization complete.")
+    except Exception as error:
+        logger.error(
+            "Database initialization failed. App will continue without DB features: %s",
+            error,
         )
 
-    logger.info("Database initialization complete.")
+
+async def close_db():
+    await Database().disconnect()
+
+
+@asynccontextmanager
+async def db_lifecycle():
+    await init_db()
+    yield
+    await close_db()
