@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 import httpx
 
 from core.config import app_settings
@@ -22,6 +24,7 @@ class GoogleAuthService:
     async def close_httpx_client(self):
         if self.httpx_client:
             await self.httpx_client.aclose()
+            self.httpx_client = None
 
     async def _get_config(self):
         self.init_httpx_client()
@@ -75,3 +78,10 @@ google_auth_service = GoogleAuthService(
     client_secret=app_settings.raw_google_client_secret,
     discovery_url=app_settings.google_discovery_url,
 )
+
+
+@asynccontextmanager
+async def google_auth_lifecycle():
+    google_auth_service.init_httpx_client()
+    yield
+    await google_auth_service.close_httpx_client()
