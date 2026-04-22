@@ -35,7 +35,6 @@ class PostgresqlSettings(BaseSettings):
     host: str = Field(validation_alias="POSTGRES_HOST")
     port: int = Field(default=5432, validation_alias="POSTGRES_PORT")
     database: str = Field(validation_alias="POSTGRES_DATABASE")
-    ssl: bool = Field(default=False, validation_alias="POSTGRES_SSL")
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @property
