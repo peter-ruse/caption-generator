@@ -23,11 +23,15 @@ class Database(metaclass=SingletonMeta):
                     host=postgresql_settings.host,
                     port=postgresql_settings.port,
                     database=postgresql_settings.database,
+                    ssl=postgresql_settings.ssl,
                     min_size=5,
                     max_size=20,
                     command_timeout=60,
                 )
-                logger.info("PostgreSQL connection pool established.")
+                logger.info(
+                    "PostgreSQL connection pool established (with ssl=%s).",
+                    postgresql_settings.ssl,
+                )
             except Exception as e:
                 logger.critical(f"Couldn't connect to PostgreSQL: {e}")
                 raise e
