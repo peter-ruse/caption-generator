@@ -1,7 +1,7 @@
+import logging
 from datetime import UTC, datetime
 from typing import Annotated, cast
 
-from asyncpg import Connection
 from fastapi import APIRouter, BackgroundTasks, Depends
 from fastapi.responses import HTMLResponse
 
@@ -10,18 +10,25 @@ from analytics.models import AnalyticsRecord
 from api.dependencies import get_analytics_logger, get_current_session
 from api.schemas import GenerateCaptionRequest
 from core.enums import CaptionStyle
-from database.database import get_db_conn
+from database.database import acquire_db_conn
 from services.llm.factory import LLMServiceFactory
 from services.llm.prompt_manager import PromptManager
 
 gen_router = APIRouter(tags=["generate"])
 
+logger = logging.getLogger(__name__)
+
 
 async def log_event_background(
-    logger: AnalyticsLogger, record: AnalyticsRecord, db_conn: Connection
+    analytics_logger: AnalyticsLogger,
+    record: AnalyticsRecord,
 ):
     """Background task to log analytics events"""
-    await logger.log_event(record, db_conn)
+    try:
+        async with acquire_db_conn() as db_conn:
+            await analytics_logger.log_event(record, db_conn)
+    except Exception as error:
+        logger.error(f"Couldn't log analytics record: {error}")
 
 
 def build_success_response(caption: str, tags: list[str]) -> HTMLResponse:
@@ -116,7 +123,6 @@ async def generate_caption(
     request: GenerateCaptionRequest,
     background_tasks: BackgroundTasks,
     logger: Annotated[AnalyticsLogger, Depends(get_analytics_logger)],
-    db_conn: Annotated[Connection, Depends(get_db_conn)],
     session: Annotated[dict, Depends(get_current_session)],
 ):
     service = LLMServiceFactory.get_service_from_provider(request.provider)
@@ -131,7 +137,7 @@ async def generate_caption(
     record = create_analytics_record(
         session["sub"], request, result, service.model, service.latency_ms
     )
-    background_tasks.add_task(log_event_background, logger, record, db_conn)
+    background_tasks.add_task(log_event_background, logger, record)
 
     if result:
         caption, tags = result
