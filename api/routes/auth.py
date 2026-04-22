@@ -24,6 +24,12 @@ async def auth_callback(request: Request, code: str):
 
     access_token = create_access_token({"sub": email})
     response = RedirectResponse("/", status_code=303)
+
+    # httponly=True: prevents javascript from reading the cookie
+    # secure=True: ensures the cookie is only sent over https
+    # samesite="lax": prevents CSRF (Cross-Site Request Forgery);
+    #   "strict" isn't an option because (given that we're using
+    #   Google authentication) it would put us in a loop.
     response.set_cookie(
         "access_token", access_token, httponly=True, secure=True, samesite="lax"
     )

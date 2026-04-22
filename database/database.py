@@ -1,4 +1,6 @@
 import logging
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator, cast
 
 import asyncpg
 
@@ -38,10 +40,15 @@ class Database(metaclass=SingletonMeta):
             logger.info("PostgreSQL connection pool closed.")
 
 
-async def get_db_conn():
+@asynccontextmanager
+async def acquire_db_conn() -> AsyncGenerator[asyncpg.Connection, None]:
     pool = await Database().connect()
-
     async with pool.acquire() as conn:
+        yield cast(asyncpg.Connection, conn)
+
+
+async def get_db_conn() -> AsyncGenerator[asyncpg.Connection, None]:
+    async with acquire_db_conn() as conn:
         yield conn
 
 
