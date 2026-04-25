@@ -57,6 +57,8 @@ async def get_platform_stats(
                 SUM(CASE WHEN success = true THEN 1 ELSE 0 END) as successes,
                 ROUND(SUM(CASE WHEN success = true THEN 1 ELSE 0 END) * 100.0 / COUNT(*) :: NUMERIC, 2) as success_rate,
                 ROUND(AVG(tags_count) :: NUMERIC, 1) as avg_tags
+                ROUND(AVG(prompt_token_count) :: NUMERIC, 1) as avg_prompt_tokens
+                ROUND(AVG(output_token_count) :: NUMERIC, 1) as avg_output_tokens
             FROM events
             WHERE timestamp > $1
             GROUP BY platform
