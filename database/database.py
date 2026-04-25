@@ -1,8 +1,13 @@
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import AsyncGenerator, cast
+from urllib.parse import quote_plus
 
 import asyncpg
+from httpx import post
+from yoyo import get_backend, read_migrations
+from yoyo.backends import PostgresqlBackend
 
 from core.config import postgresql_settings
 from utils.meta import SingletonMeta
@@ -52,28 +57,20 @@ async def get_db_conn() -> AsyncGenerator[asyncpg.Connection, None]:
         yield conn
 
 
-async def init_db():
+def init_db():
     """Initialize database schema and tables"""
     try:
-        async with acquire_db_conn() as conn:
-            await conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS events (
-                    id SERIAL PRIMARY KEY,
-                    timestamp TIMESTAMPTZ NOT NULL,
-                    username TEXT,
-                    model TEXT,
-                    platform TEXT NOT NULL,
-                    caption_style TEXT NOT NULL,
-                    success BOOLEAN NOT NULL,
-                    latency_ms INTEGER NOT NULL,
-                    error_message TEXT,
-                    tags_count INTEGER DEFAULT 0
-                )
-                """
-            )
-
-        logger.info("Database initialization complete.")
+        user = postgresql_settings.user
+        password = quote_plus(postgresql_settings.raw_password)
+        host = postgresql_settings.host
+        port = postgresql_settings.port
+        database = postgresql_settings.database
+        backend: PostgresqlBackend = get_backend(
+            f"postgresql://{user}:{password}@{host}:{port}/{database}"
+        )
+        migrations = read_migrations(str(Path(__file__).parents[0] / "migrations"))
+        with backend.lock():
+            backend.apply_migrations(backend.to_apply(migrations))
     except Exception as error:
         logger.error(
             "Database initialization failed. App will continue without DB features: %s",
@@ -87,6 +84,6 @@ async def close_db():
 
 @asynccontextmanager
 async def db_lifecycle():
-    await init_db()
+    init_db()
     yield
     await close_db()

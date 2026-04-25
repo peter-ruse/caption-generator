@@ -1,5 +1,6 @@
 import logging
 import time
+from typing import cast
 
 from google import genai
 from google.genai import errors
@@ -25,12 +26,13 @@ class GeminiService(LLMService):
 
     async def generate_caption(
         self, prompt: str, system_instruction: str
-    ) -> tuple[str, list[str]] | None:
+    ) -> tuple[str, list[str], int | None, int | None] | None:
         for model in self.models:
             self.model = model
             self.latency_ms = None
             try:
                 start = time.perf_counter()
+
                 response = await self.client.aio.models.generate_content(
                     model=model,
                     contents=prompt,
@@ -39,6 +41,17 @@ class GeminiService(LLMService):
                         "temperature": 0.7,
                     },
                 )
+
+                usage_metadata = response.usage_metadata
+                prompt_token_count, output_token_count = (
+                    (None, None)
+                    if usage_metadata is None
+                    else (
+                        usage_metadata.prompt_token_count,
+                        usage_metadata.candidates_token_count,
+                    )
+                )
+
                 self.latency_ms = round((time.perf_counter() - start) * 1000)
                 content = response.text or ""
 
@@ -46,8 +59,13 @@ class GeminiService(LLMService):
                     caption, tags = content.split("TAGS:")
                     caption = caption.strip()
                     tags = tags.strip().split()
-                    return caption, tags
-                return content, ["Bali", "BaliLife", "TravelBali", "VisitBali"]
+                    return caption, tags, prompt_token_count, output_token_count
+                return (
+                    content,
+                    ["Bali", "BaliLife", "TravelBali", "VisitBali"],
+                    prompt_token_count,
+                    output_token_count,
+                )
             except errors.ClientError as e:
                 logger.error(f"Client error: {e}")
             except errors.ServerError as e:

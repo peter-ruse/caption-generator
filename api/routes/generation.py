@@ -88,13 +88,13 @@ def build_error_response() -> HTMLResponse:
 def create_analytics_record(
     username: str,
     request: GenerateCaptionRequest,
-    result: tuple[str, list[str]] | None,
+    result: tuple[str, list[str], int | None, int | None] | None,
     model: str | None,
     latency_ms: int | None,
 ) -> AnalyticsRecord:
     """Create analytics record from caption generation result"""
     if result:
-        _, tags = result
+        _, tags, prompt_token_count, output_token_count = result
         return AnalyticsRecord(
             username=username,
             platform=str(request.social_media_platform),
@@ -104,6 +104,8 @@ def create_analytics_record(
             model=model,
             latency_ms=latency_ms,
             tags_count=len(tags),
+            prompt_token_count=prompt_token_count,
+            output_token_count=output_token_count,
         )
     else:
         return AnalyticsRecord(
@@ -140,7 +142,7 @@ async def generate_caption(
     background_tasks.add_task(log_event_background, logger, record)
 
     if result:
-        caption, tags = result
+        caption, tags, _, _ = result
         return build_success_response(caption, tags)
     else:
         return build_error_response()
