@@ -21,6 +21,6 @@ class AnalyticsRecord(BaseModel):
     model: str | None
     latency_ms: int | None
     error_message: str | None = None
-    tags_count: int = Field(default=0)
+    tags_count: int | None = None
     prompt_token_count: int | None = None
     output_token_count: int | None = None
