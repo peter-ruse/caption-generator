@@ -19,7 +19,7 @@ class DummyServiceSuccess:
 
     async def generate_caption(self, prompt: str, system_instruction: str):
         await asyncio.sleep(0.01)
-        return ("A sample caption.", ["#bali", "#travel"])
+        return ("A sample caption.", ["#bali", "#travel"], 3, 3)
 
 
 class DummyServiceFailure:
