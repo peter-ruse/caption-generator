@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from api.dependencies import get_analytics_logger, get_current_session
 from api.routes.generation import gen_router
 from database.database import get_db_conn
+from services.llm.models import CaptionGenerationResult
 
 
 class DummyLogger:
@@ -14,18 +15,19 @@ class DummyLogger:
 
 
 class DummyServiceSuccess:
-    model = "dummy-model"
-    latency_ms = 100
-
     async def generate_caption(self, prompt: str, system_instruction: str):
         await asyncio.sleep(0.01)
-        return ("A sample caption.", ["#bali", "#travel"], 3, 3)
+        return CaptionGenerationResult(
+            model="dummy-model",
+            latency_ms=100,
+            caption="A sample caption.",
+            tags=["#bali", "#travel"],
+            prompt_token_count=3,
+            output_token_count=3,
+        )
 
 
 class DummyServiceFailure:
-    model = None
-    latency_ms = None
-
     async def generate_caption(self, prompt: str, system_instruction: str):
         await asyncio.sleep(0.01)
 
