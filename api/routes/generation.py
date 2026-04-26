@@ -12,6 +12,7 @@ from api.schemas import GenerateCaptionRequest
 from core.enums import CaptionStyle
 from database.database import acquire_db_conn
 from services.llm.factory import LLMServiceFactory
+from services.llm.models import CaptionGenerationResult
 from services.llm.prompt_manager import PromptManager
 
 gen_router = APIRouter(tags=["generate"])
@@ -31,21 +32,21 @@ async def log_event_background(
         logger.error(f"Couldn't log analytics record: {error}")
 
 
-def build_success_response(caption: str, tags: list[str]) -> HTMLResponse:
+def build_success_response(result: CaptionGenerationResult) -> HTMLResponse:
     """Build HTML response for successful caption generation"""
     tag_buttons = "".join(
         [
             f'<button onclick="toggleTag(this)" data-tag="{t}" class="tag-btn px-3 py-1.5 border border-zinc-200 dark:border-zinc-700 rounded-full text-[11px] font-bold transition-all">{t}</button>'
-            for t in tags
+            for t in result.tags
         ]
     )
 
     return HTMLResponse(
         f"""
         <div class="space-y-6 fade-in" id="container">
-            <div id="base-template" style="display: none;">{caption}</div>
+            <div id="base-template" style="display: none;">{result.caption}</div>
 
-            <div id="caption-text" class="text-zinc-800 dark:text-zinc-100 leading-relaxed whitespace-pre-wrap">{caption}</div>
+            <div id="caption-text" class="text-zinc-800 dark:text-zinc-100 leading-relaxed whitespace-pre-wrap">{result.caption}</div>
 
             <div class="space-y-3">
                 <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Suggested Hashtags</p>
@@ -88,24 +89,21 @@ def build_error_response() -> HTMLResponse:
 def create_analytics_record(
     username: str,
     request: GenerateCaptionRequest,
-    result: tuple[str, list[str], int | None, int | None] | None,
-    model: str | None,
-    latency_ms: int | None,
+    result: CaptionGenerationResult | None,
 ) -> AnalyticsRecord:
     """Create analytics record from caption generation result"""
     if result:
-        _, tags, prompt_token_count, output_token_count = result
         return AnalyticsRecord(
             username=username,
             platform=str(request.social_media_platform),
             caption_style=cast(CaptionStyle, request.caption_style).name,
             timestamp=datetime.now(UTC),
             success=True,
-            model=model,
-            latency_ms=latency_ms,
-            tags_count=len(tags),
-            prompt_token_count=prompt_token_count,
-            output_token_count=output_token_count,
+            model=result.model,
+            latency_ms=result.latency_ms,
+            tags_count=len(result.tags),
+            prompt_token_count=result.prompt_token_count,
+            output_token_count=result.output_token_count,
         )
     else:
         return AnalyticsRecord(
@@ -114,9 +112,9 @@ def create_analytics_record(
             caption_style=cast(CaptionStyle, request.caption_style).name,
             timestamp=datetime.now(UTC),
             success=False,
-            model=model,
-            latency_ms=latency_ms,
-            error_message="Generation failed or returned None",
+            model=None,
+            latency_ms=None,
+            error_message="Generation failed",
         )
 
 
@@ -136,13 +134,11 @@ async def generate_caption(
     )
     result = await service.generate_caption(prompt, system_instruction)
 
-    record = create_analytics_record(
-        session["sub"], request, result, service.model, service.latency_ms
-    )
+    username = session["sub"]
+    record = create_analytics_record(username, request, result)
     background_tasks.add_task(log_event_background, logger, record)
 
     if result:
-        caption, tags, _, _ = result
-        return build_success_response(caption, tags)
+        return build_success_response(result)
     else:
         return build_error_response()

@@ -7,6 +7,7 @@ from google.genai import errors
 
 from core.config import gemini_settings
 from services.llm.base import LLMService
+from services.llm.models import CaptionGenerationResult
 
 logger = logging.getLogger(__name__)
 
@@ -21,15 +22,11 @@ class GeminiService(LLMService):
             "gemini-2.5-flash-lite",
             "gemini-2.5-flash",
         ]
-        self.model: str | None = None
-        self.latency_ms: int | None = None
 
     async def generate_caption(
         self, prompt: str, system_instruction: str
-    ) -> tuple[str, list[str], int | None, int | None] | None:
+    ) -> CaptionGenerationResult | None:
         for model in self.models:
-            self.model = model
-            self.latency_ms = None
             try:
                 start = time.perf_counter()
 
@@ -52,19 +49,23 @@ class GeminiService(LLMService):
                     )
                 )
 
-                self.latency_ms = round((time.perf_counter() - start) * 1000)
+                latency_ms = round((time.perf_counter() - start) * 1000)
                 content = response.text or ""
 
                 if "TAGS:" in content:
                     caption, tags = content.split("TAGS:")
                     caption = caption.strip()
                     tags = tags.strip().split()
-                    return caption, tags, prompt_token_count, output_token_count
-                return (
-                    content,
-                    ["Bali", "BaliLife", "TravelBali", "VisitBali"],
-                    prompt_token_count,
-                    output_token_count,
+                else:
+                    caption = content
+                    tags = ["Bali", "BaliLife", "TravelBali", "VisitBali"]
+                return CaptionGenerationResult(
+                    model=model,
+                    latency_ms=latency_ms,
+                    caption=caption,
+                    tags=tags,
+                    prompt_token_count=prompt_token_count,
+                    output_token_count=output_token_count,
                 )
             except errors.ClientError as e:
                 logger.error(f"Client error: {e}")
