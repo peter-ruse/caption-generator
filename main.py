@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from api.dependencies import get_current_session
-from api.exceptions import AuthRequiredException
+from api.exceptions import AdminRequiredException, AuthRequiredException
 from api.routes.analytics import analytics_router
 from api.routes.auth import auth_router
 from api.routes.generation import gen_router
@@ -57,6 +57,13 @@ async def auth_exception_handler(request: Request, exc: AuthRequiredException):
         return JSONResponse(status_code=401, content={"detail": "Token expired"})
 
     return RedirectResponse(url="/login", status_code=303)
+
+
+@app.exception_handler(AdminRequiredException)
+async def admin_exception_handler(request: Request, exc: AdminRequiredException):
+    return JSONResponse(
+        status_code=403, content={"detail": "Admin access required"}
+    )
 
 
 @app.get("/login", response_class=HTMLResponse)

@@ -4,6 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class AppSettings(BaseSettings):
     env: str = Field(validation_alias="ENV")
+    admin_username: str = Field(validation_alias="ADMIN_USERNAME")
 
     # for authentication
     google_client_id: str = Field(validation_alias="GOOGLE_CLIENT_ID")
