@@ -5,7 +5,6 @@ from typing import AsyncGenerator, cast
 from urllib.parse import quote_plus
 
 import asyncpg
-from httpx import post
 from yoyo import get_backend, read_migrations
 from yoyo.backends import PostgresqlBackend
 
