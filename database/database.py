@@ -20,21 +20,17 @@ class Database(metaclass=SingletonMeta):
 
     async def connect(self) -> asyncpg.Pool:
         if not self.pool:
-            try:
-                self.pool = await asyncpg.create_pool(
-                    user=postgresql_settings.user,
-                    password=postgresql_settings.raw_password,
-                    host=postgresql_settings.host,
-                    port=postgresql_settings.port,
-                    database=postgresql_settings.database,
-                    min_size=5,
-                    max_size=20,
-                    command_timeout=60,
-                )
-                logger.info("PostgreSQL connection pool established.")
-            except Exception as e:
-                logger.critical(f"Couldn't connect to PostgreSQL: {e}")
-                raise e
+            self.pool = await asyncpg.create_pool(
+                user=postgresql_settings.user,
+                password=postgresql_settings.raw_password,
+                host=postgresql_settings.host,
+                port=postgresql_settings.port,
+                database=postgresql_settings.database,
+                min_size=5,
+                max_size=20,
+                command_timeout=60,
+            )
+            logger.info("PostgreSQL connection pool established.")
         return self.pool
 
     async def disconnect(self):
@@ -71,9 +67,21 @@ def init_db():
         with backend.lock():
             backend.apply_migrations(backend.to_apply(migrations))
     except Exception as error:
-        logger.error(
-            "Database initialization failed. App will continue without DB features: %s",
+        logger.warning(
+            "Database initialization failed. Continuing without DB features: %s",
             error,
+        )
+
+
+async def open_db(required: bool = False):
+    try:
+        await Database().connect()
+    except Exception as error:
+        if required:
+            logger.exception("Database connection failed")
+            raise
+        logger.warning(
+            "Database connection unavailable. Continuing without DB features: %s", error
         )
 
 
@@ -84,5 +92,6 @@ async def close_db():
 @asynccontextmanager
 async def db_lifecycle():
     init_db()
+    await open_db()
     yield
     await close_db()
