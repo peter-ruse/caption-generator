@@ -52,7 +52,21 @@ class JWTSettings(BaseSettings):
         return self.secret_key.get_secret_value()
 
 
+class RedisSettings(BaseSettings):
+    url: SecretStr = Field(validation_alias="REDIS_URL")
+    rate_limit: int = Field(default=5, validation_alias="RATE_LIMIT")
+    rate_limit_window_seconds: int = Field(
+        default=60, validation_alias="RATE_LIMIT_WINDOW_SECONDS"
+    )
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @property
+    def raw_url(self):
+        return self.url.get_secret_value()
+
+
 app_settings = AppSettings()  # type: ignore
 gemini_settings = GeminiSettings()  # type: ignore
 postgresql_settings = PostgresqlSettings()  # type: ignore
 jwt_settings = JWTSettings()  # type: ignore
+redis_settings = RedisSettings()  # type: ignore

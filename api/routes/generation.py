@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse
 
 from analytics.logger import AnalyticsLogger
 from analytics.models import AnalyticsRecord
-from api.dependencies import get_analytics_logger, get_current_session
+from api.dependencies import get_analytics_logger, rate_limit_check
 from api.schemas import GenerateCaptionRequest
 from core.enums import CaptionStyle
 from database.database import acquire_db_conn
@@ -41,8 +41,7 @@ def build_success_response(result: CaptionGenerationResult) -> HTMLResponse:
         ]
     )
 
-    return HTMLResponse(
-        f"""
+    return HTMLResponse(f"""
         <div class="space-y-6 fade-in" id="container">
             <div id="base-template" style="display: none;">{result.caption}</div>
 
@@ -58,14 +57,12 @@ def build_success_response(result: CaptionGenerationResult) -> HTMLResponse:
                 Copy to Clipboard
             </button>
         </div>
-        """
-    )
+        """)
 
 
 def build_error_response() -> HTMLResponse:
     """Build HTML response for generation failure"""
-    return HTMLResponse(
-        """
+    return HTMLResponse("""
         <div id="caption-text" class="fade-in p-4 rounded-xl border border-rose-100 dark:border-rose-900/30 bg-rose-50/50 dark:bg-rose-950/20">
             <div class="flex items-start gap-3">
                 <svg class="w-5 h-5 text-rose-500 dark:text-rose-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,8 +79,7 @@ def build_error_response() -> HTMLResponse:
                 </div>
             </div>
         </div>
-        """
-    )
+        """)
 
 
 def create_analytics_record(
@@ -123,7 +119,7 @@ async def generate_caption(
     request: GenerateCaptionRequest,
     background_tasks: BackgroundTasks,
     logger: Annotated[AnalyticsLogger, Depends(get_analytics_logger)],
-    session: Annotated[dict, Depends(get_current_session)],
+    username: Annotated[str, Depends(rate_limit_check)],
 ):
     service = LLMServiceFactory.get_service_from_provider(request.provider)
     prompt = PromptManager.build_prompt(
@@ -134,7 +130,6 @@ async def generate_caption(
     )
     result = await service.generate_caption(prompt, system_instruction)
 
-    username = session["sub"]
     record = create_analytics_record(username, request, result)
     background_tasks.add_task(log_event_background, logger, record)
 
