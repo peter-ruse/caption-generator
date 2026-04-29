@@ -67,14 +67,14 @@ class GeminiService(LLMService):
                     prompt_token_count=prompt_token_count,
                     output_token_count=output_token_count,
                 )
-            except errors.ClientError as e:
-                logger.error(f"Client error: {e}")
-            except errors.ServerError as e:
-                logger.error(f"Server error: {e}")
-            except errors.APIError as e:
-                logger.error(f"General API error: {e}")
-            except Exception as e:
-                logger.exception(f"Unexpected error: {e}")
+            except errors.ClientError as error:
+                logger.error("Client error: %s", error)
+            except errors.ServerError as error:
+                logger.error("Server error: %s", error)
+            except errors.APIError as error:
+                logger.error("General API error: %s", error)
+            except Exception as error:
+                logger.exception("Unexpected error: %s", error)
 
 
 gemini_service = GeminiService(gemini_settings.raw_api_key)

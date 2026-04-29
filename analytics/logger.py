@@ -41,8 +41,8 @@ class AnalyticsLogger:
                 record.prompt_token_count,
                 record.output_token_count,
             )
-        except Exception as e:
-            logger.error(f"Failed to log analytics event: {e}")
+        except Exception as error:
+            logger.error("Failed to log analytics event: %s", error)
 
 
 analytics_logger = AnalyticsLogger()

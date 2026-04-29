@@ -29,7 +29,7 @@ async def log_event_background(
         async with acquire_db_conn() as db_conn:
             await analytics_logger.log_event(record, db_conn)
     except Exception as error:
-        logger.error(f"Couldn't log analytics record: {error}")
+        logger.error("Couldn't log analytics record: %s", error)
 
 
 def build_success_response(result: CaptionGenerationResult) -> HTMLResponse:
