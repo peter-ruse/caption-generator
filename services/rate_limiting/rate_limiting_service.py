@@ -34,6 +34,6 @@ class RateLimitingService(metaclass=SingletonMeta):
             _, _, current_count, _ = await pipeline.execute()
 
             return current_count > limit
-        except Exception as e:
-            logger.error(f"Rate limiter error: {e}")
+        except Exception as error:
+            logger.error("Rate limiter error: %s", error)
             return False
