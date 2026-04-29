@@ -3,7 +3,7 @@ import asyncio
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from api.dependencies import get_analytics_logger, get_current_session
+from api.dependencies import get_analytics_logger, rate_limit_check
 from api.routes.generation import gen_router
 from database.database import get_db_conn
 from services.llm.models import CaptionGenerationResult
@@ -40,7 +40,7 @@ def _make_client() -> TestClient:
     app = FastAPI()
     app.include_router(gen_router)
     app.dependency_overrides[get_analytics_logger] = lambda: DummyLogger()
-    app.dependency_overrides[get_current_session] = lambda: {"sub": "test-user"}
+    app.dependency_overrides[rate_limit_check] = lambda: "test-user"
     app.dependency_overrides[get_db_conn] = _fake_db_conn
     return TestClient(app)
 

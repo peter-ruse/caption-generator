@@ -1,14 +1,18 @@
 services:
   api:
-    build: . 
+    build: .
     container_name: caption_generator_api
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     env_file:
       - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
 
   db:
     image: postgres:16-alpine
@@ -28,6 +32,16 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: caption_generator_redis
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
 volumes:
   postgres_data:
