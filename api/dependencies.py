@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import Cookie, Depends, HTTPException, status
+from jose.exceptions import JWTError
 
 from analytics.logger import AnalyticsLogger, analytics_logger
 from api.exceptions import AdminRequiredException, AuthRequiredException
@@ -17,13 +18,13 @@ def get_current_session(access_token: str = Cookie(None)) -> dict:
 
     try:
         session = decode_access_token(access_token)
-
-        if session.get("sub") is None:
-            raise AuthRequiredException()
-
-        return session
-    except Exception:
+    except JWTError:
         raise AuthRequiredException()
+
+    if "sub" not in session:
+        raise AuthRequiredException()
+
+    return session
 
 
 def get_analytics_logger() -> AnalyticsLogger:
