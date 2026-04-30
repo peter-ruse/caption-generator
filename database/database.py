@@ -90,7 +90,7 @@ async def close_db():
 
 
 @asynccontextmanager
-async def db_lifecycle():
+async def db_lifecycle() -> AsyncGenerator[None, None]:
     init_db()
     await open_db()
     yield
