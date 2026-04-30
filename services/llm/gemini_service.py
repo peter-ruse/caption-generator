@@ -1,6 +1,5 @@
 import logging
 import time
-from typing import cast
 
 from google import genai
 from google.genai import errors
@@ -75,6 +74,7 @@ class GeminiService(LLMService):
                 logger.error("General API error: %s", error)
             except Exception as error:
                 logger.exception("Unexpected error: %s", error)
+        logger.error("All models exhausted; caption generation failed.")
 
 
 gemini_service = GeminiService(gemini_settings.raw_api_key)

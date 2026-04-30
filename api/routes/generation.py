@@ -110,7 +110,7 @@ def create_analytics_record(
             success=False,
             model=None,
             latency_ms=None,
-            error_message="Generation failed",
+            error_message="Caption generation failed",
         )
 
 
