@@ -68,8 +68,7 @@ def init_db():
             backend.apply_migrations(backend.to_apply(migrations))
     except Exception as error:
         logger.warning(
-            "Database initialization failed. Continuing without DB features: %s",
-            error,
+            "Database initialization failed. Continuing without DB features: %s", error
         )
 
 
