@@ -356,6 +356,7 @@
         </div>
 
         <button
+          id="clear-all-text-fields-btn"
           type="button"
           class="w-full py-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-bold uppercase tracking-widest hover:bg-zinc-100 dark:hover:bg-zinc-800"
           onclick="clearAllTextFields()"
@@ -491,6 +492,14 @@
     <script>
       let clearUndoSnapshot = null;
       let clearSnackbarTimeoutId = null;
+      let clearAllLocked = false;
+
+      function setClearAllLocked(locked) {
+        clearAllLocked = locked;
+        const button = document.getElementById('clear-all-text-fields-btn');
+        if (!button) return;
+        button.disabled = locked;
+      }
 
       function toggleDarkMode() {
         const isDark = document.documentElement.classList.toggle('dark');
@@ -587,8 +596,11 @@
       }
 
       function clearAllTextFields() {
+        if (clearAllLocked) return;
+
         const ids = ['title-input', 'link-input', 'text-input', 'custom_instruction_input'];
         clearUndoSnapshot = {};
+        setClearAllLocked(true);
 
         ids.forEach((id) => {
           const element = document.getElementById(id);
@@ -606,7 +618,10 @@
         const snackbar = document.getElementById('clear-snackbar');
         const timer = document.getElementById('clear-snackbar-timer');
 
-        if (!snackbar || !timer) return;
+        if (!snackbar || !timer) {
+          setClearAllLocked(false);
+          return;
+        }
 
         snackbar.classList.remove('hidden');
         timer.classList.remove('snackbar-countdown');
@@ -617,6 +632,7 @@
         clearSnackbarTimeoutId = setTimeout(() => {
           hideClearSnackbar();
           clearUndoSnapshot = null;
+          setClearAllLocked(false);
         }, 5000);
       }
 
@@ -639,6 +655,7 @@
         clearUndoSnapshot = null;
         clearTimeout(clearSnackbarTimeoutId);
         hideClearSnackbar();
+        setClearAllLocked(false);
       }
 
       (function() {
