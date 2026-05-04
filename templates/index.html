@@ -56,6 +56,24 @@
       textarea::-webkit-scrollbar-track {
         background: transparent;
       }
+      @keyframes snackbarCountdown {
+        from {
+          width: 100%;
+        }
+        to {
+          width: 0%;
+        }
+      }
+      .snackbar-countdown {
+        animation: snackbarCountdown 5s linear forwards;
+      }
+      @keyframes circleCountdown {
+        from { stroke-dashoffset: 0; }
+        to   { stroke-dashoffset: 44; }
+      }
+      .circle-countdown {
+        animation: circleCountdown 5s linear forwards;
+      }
     </style>
   </head>
   <body
@@ -103,12 +121,13 @@
         class="space-y-6"
         novalidate
         hx-on::after-request="if(event.detail.successful) tried = false"
+        @clear-fields.window="tried = false; messages = {}"
         x-data="{ 
           tried: false, 
           messages: {},
           updateMessage(id) {
-            const el = document.getElementById(id);
-            this.messages[id] = (this.tried && el && !el.validity.valid) ? el.validationMessage : '';
+            const element = document.getElementById(id);
+            this.messages[id] = (this.tried && element && !element.validity.valid) ? element.validationMessage : '';
           }
         }"
         @submit="
@@ -122,13 +141,50 @@
         "
       >
         <input type="hidden" name="provider" value="gemini" />
-        <div x-data="{ val: $persist('').as('persist_title') }">
-          <label 
-            for="title-input" 
-            class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2"
-          >
-            Article Title
-          </label>
+        <div x-data="{
+          val: $persist('').as('persist_title'),
+          snapshot: null, undoTimerId: null,
+          clearField() {
+            this.snapshot = this.val; this.val = '';
+            clearTimeout(this.undoTimerId);
+            this.undoTimerId = setTimeout(() => { this.snapshot = null; }, 5000);
+          },
+          undoField() { clearTimeout(this.undoTimerId); this.val = this.snapshot; this.snapshot = null; }
+        }">
+          <div class="flex items-center justify-between mb-2">
+            <label 
+              for="title-input" 
+              class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400"
+            >
+              Article Title
+            </label>
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                x-show="snapshot !== null"
+                x-cloak
+                @click="undoField()"
+                class="text-[10px] font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 hover:opacity-80"
+                aria-label="Undo clear article title"
+              >
+                Undo
+              </button>
+              <svg x-show="snapshot !== null" x-cloak class="w-3.5 h-3.5 -rotate-90 text-rose-500 dark:text-rose-400" viewBox="0 0 18 18" aria-hidden="true">
+                <circle cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2" class="opacity-20" stroke-dasharray="44" stroke-dashoffset="0"/>
+                <circle cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2" class="field-undo-circle circle-countdown" stroke-dasharray="44" stroke-dashoffset="0"/>
+              </svg>
+              <button
+                type="button"
+                x-show="snapshot === null && val"
+                x-cloak
+                @click="clearField()"
+                class="text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                aria-label="Clear article title"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
           <div x-show="messages['title-input']" x-cloak>
             <p class="text-[10px] text-rose-600 dark:text-rose-400 mb-2 italic" x-text="messages['title-input']"></p>
           </div>
@@ -136,13 +192,50 @@
           class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none text-sm">
         </div>
 
-        <div x-data="{ val: $persist('').as('persist_link') }">
-          <label 
-            for="link-input" 
-            class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2"
-          >
-            Article Link
-          </label>
+        <div x-data="{
+          val: $persist('').as('persist_link'),
+          snapshot: null, undoTimerId: null,
+          clearField() {
+            this.snapshot = this.val; this.val = '';
+            clearTimeout(this.undoTimerId);
+            this.undoTimerId = setTimeout(() => { this.snapshot = null; }, 5000);
+          },
+          undoField() { clearTimeout(this.undoTimerId); this.val = this.snapshot; this.snapshot = null; }
+        }">
+          <div class="flex items-center justify-between mb-2">
+            <label 
+              for="link-input" 
+              class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400"
+            >
+              Article Link
+            </label>
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                x-show="snapshot !== null"
+                x-cloak
+                @click="undoField()"
+                class="text-[10px] font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 hover:opacity-80"
+                aria-label="Undo clear article link"
+              >
+                Undo
+              </button>
+              <svg x-show="snapshot !== null" x-cloak class="w-3.5 h-3.5 -rotate-90 text-rose-500 dark:text-rose-400" viewBox="0 0 18 18" aria-hidden="true">
+                <circle cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2" class="opacity-20" stroke-dasharray="44" stroke-dashoffset="0"/>
+                <circle cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2" class="field-undo-circle circle-countdown" stroke-dasharray="44" stroke-dashoffset="0"/>
+              </svg>
+              <button
+                type="button"
+                x-show="snapshot === null && val"
+                x-cloak
+                @click="clearField()"
+                class="text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                aria-label="Clear article link"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
           <div x-show="messages['link-input']" x-cloak>
             <p class="text-[10px] text-rose-600 dark:text-rose-400 mb-2 italic" x-text="messages['link-input']"></p>
           </div>
@@ -150,14 +243,51 @@
           class="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl focus:ring-1 focus:ring-black dark:focus:ring-zinc-400 outline-none text-sm">
         </div>
 
-        <div x-data="{ val: $persist('').as('persist_article') }">
-          <label
-            for="text-input"
-            class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2"
+        <div x-data="{
+          val: $persist('').as('persist_article'),
+          snapshot: null, undoTimerId: null,
+          clearField() {
+            this.snapshot = this.val; this.val = '';
+            clearTimeout(this.undoTimerId);
+            this.undoTimerId = setTimeout(() => { this.snapshot = null; }, 5000);
+          },
+          undoField() { clearTimeout(this.undoTimerId); this.val = this.snapshot; this.snapshot = null; }
+        }">
+          <div class="flex items-center justify-between mb-2">
+            <label
+              for="text-input"
+              class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400"
+              >
+                Article Text
+              </label
             >
-              Article Text
-            </label
-          >
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                x-show="snapshot !== null"
+                x-cloak
+                @click="undoField()"
+                class="text-[10px] font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 hover:opacity-80"
+                aria-label="Undo clear article text"
+              >
+                Undo
+              </button>
+              <svg x-show="snapshot !== null" x-cloak class="w-3.5 h-3.5 -rotate-90 text-rose-500 dark:text-rose-400" viewBox="0 0 18 18" aria-hidden="true">
+                <circle cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2" class="opacity-20" stroke-dasharray="44" stroke-dashoffset="0"/>
+                <circle cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2" class="field-undo-circle circle-countdown" stroke-dasharray="44" stroke-dashoffset="0"/>
+              </svg>
+              <button
+                type="button"
+                x-show="snapshot === null && val"
+                x-cloak
+                @click="clearField()"
+                class="text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                aria-label="Clear article text"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
           <div x-show="messages['text-input']" x-cloak>
             <p class="text-[10px] text-rose-600 dark:text-rose-400 mb-2 italic" x-text="messages['text-input']"></p>
           </div>
@@ -172,12 +302,49 @@
           ></textarea>
         </div>
 
-        <div x-data="{ val: $persist('').as('persist_custom_instruction') }">
-          <label
-            for="custom_instruction_input"
-            class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2"
-            >Custom Instructions for the AI (Optional) </label
-          >
+        <div x-data="{
+          val: $persist('').as('persist_custom_instruction'),
+          snapshot: null, undoTimerId: null,
+          clearField() {
+            this.snapshot = this.val; this.val = '';
+            clearTimeout(this.undoTimerId);
+            this.undoTimerId = setTimeout(() => { this.snapshot = null; }, 5000);
+          },
+          undoField() { clearTimeout(this.undoTimerId); this.val = this.snapshot; this.snapshot = null; }
+        }">
+          <div class="flex items-center justify-between mb-2">
+            <label
+              for="custom_instruction_input"
+              class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400"
+              >Custom Instructions for the AI (Optional) </label
+            >
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                x-show="snapshot !== null"
+                x-cloak
+                @click="undoField()"
+                class="text-[10px] font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 hover:opacity-80"
+                aria-label="Undo clear custom instructions"
+              >
+                Undo
+              </button>
+              <svg x-show="snapshot !== null" x-cloak class="w-3.5 h-3.5 -rotate-90 text-rose-500 dark:text-rose-400" viewBox="0 0 18 18" aria-hidden="true">
+                <circle cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2" class="opacity-20" stroke-dasharray="44" stroke-dashoffset="0"/>
+                <circle cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2" class="field-undo-circle circle-countdown" stroke-dasharray="44" stroke-dashoffset="0"/>
+              </svg>
+              <button
+                type="button"
+                x-show="snapshot === null && val"
+                x-cloak
+                @click="clearField()"
+                class="text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                aria-label="Clear custom instructions"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
           <textarea
             name="custom_instruction"
             id="custom_instruction_input"
@@ -187,6 +354,14 @@
             placeholder="For example: Make at least one reference to Australian culture"
           ></textarea>
         </div>
+
+        <button
+          type="button"
+          class="w-full py-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-bold uppercase tracking-widest hover:bg-zinc-100 dark:hover:bg-zinc-800"
+          onclick="clearAllTextFields()"
+        >
+          Clear All Text Fields
+        </button>
 
 				<div class="relative" x-data="{ open: false, selected: $persist('Instagram').as('persist_social_media_platform') }">
           <label for="social-media-picker" class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">
@@ -292,7 +467,31 @@
       </p>
     </footer>
 
+    <output
+      id="clear-snackbar"
+      class="hidden fixed bottom-4 left-4 w-[calc(100%-2rem)] max-w-md bg-rose-50/80 dark:bg-rose-950/40 rounded-xl shadow-sm border border-rose-100 dark:border-rose-900/30 overflow-hidden z-50"
+      aria-live="polite"
+    >
+      <div class="flex items-center justify-between gap-3 px-4 py-3">
+        <p class="text-sm text-rose-700 dark:text-rose-300/90">Form cleared...</p>
+        <button
+          type="button"
+          class="text-xs font-bold uppercase tracking-widest text-rose-700 dark:text-rose-300/90 hover:opacity-80"
+          onclick="undoClearAllTextFields()"
+          aria-label="Undo clear form"
+        >
+          Undo
+        </button>
+      </div>
+      <div class="h-1 bg-rose-200/70 dark:bg-rose-900/40">
+        <div id="clear-snackbar-timer" class="h-full w-full bg-rose-400 dark:bg-rose-400"></div>
+      </div>
+    </output>
+
     <script>
+      let clearUndoSnapshot = null;
+      let clearSnackbarTimeoutId = null;
+
       function toggleDarkMode() {
         const isDark = document.documentElement.classList.toggle('dark');
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
@@ -385,6 +584,61 @@
       function copyFullCaption() {
         const text = document.getElementById('caption-text').innerText;
         navigator.clipboard.writeText(text);
+      }
+
+      function clearAllTextFields() {
+        const ids = ['title-input', 'link-input', 'text-input', 'custom_instruction_input'];
+        clearUndoSnapshot = {};
+
+        ids.forEach((id) => {
+          const element = document.getElementById(id);
+          if (!element) return;
+          clearUndoSnapshot[id] = element.value || '';
+          element.value = '';
+          element.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+
+        window.dispatchEvent(new CustomEvent('clear-fields'));
+        showClearSnackbar();
+      }
+
+      function showClearSnackbar() {
+        const snackbar = document.getElementById('clear-snackbar');
+        const timer = document.getElementById('clear-snackbar-timer');
+
+        if (!snackbar || !timer) return;
+
+        snackbar.classList.remove('hidden');
+        timer.classList.remove('snackbar-countdown');
+        void timer.offsetWidth;
+        timer.classList.add('snackbar-countdown');
+
+        clearTimeout(clearSnackbarTimeoutId);
+        clearSnackbarTimeoutId = setTimeout(() => {
+          hideClearSnackbar();
+          clearUndoSnapshot = null;
+        }, 5000);
+      }
+
+      function hideClearSnackbar() {
+        const snackbar = document.getElementById('clear-snackbar');
+        if (!snackbar) return;
+        snackbar.classList.add('hidden');
+      }
+
+      function undoClearAllTextFields() {
+        if (!clearUndoSnapshot) return;
+
+        Object.entries(clearUndoSnapshot).forEach(([id, value]) => {
+          const element = document.getElementById(id);
+          if (!element) return;
+          element.value = value;
+          element.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+
+        clearUndoSnapshot = null;
+        clearTimeout(clearSnackbarTimeoutId);
+        hideClearSnackbar();
       }
 
       (function() {
