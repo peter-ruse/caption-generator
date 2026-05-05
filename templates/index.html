@@ -361,7 +361,11 @@
           class="w-full py-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-bold uppercase tracking-widest hover:bg-zinc-100 dark:hover:bg-zinc-800"
           onclick="clearAllTextFields()"
         >
-          Clear All Text Fields
+          <span id="clear-all-text-label">Clear All Text Fields</span>
+          <svg id="clear-all-undo-circle" class="hidden w-3.5 h-3.5 ml-2 -translate-y-[1px] -rotate-90 text-rose-500 dark:text-rose-400" viewBox="0 0 18 18" aria-hidden="true">
+            <circle cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2" class="opacity-20" stroke-dasharray="44" stroke-dashoffset="0"/>
+            <circle id="clear-all-undo-active-ring" cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="44" stroke-dashoffset="0"/>
+          </svg>
         </button>
 
 				<div class="relative" x-data="{ open: false, selected: $persist('Instagram').as('persist_social_media_platform') }">
@@ -468,37 +472,49 @@
       </p>
     </footer>
 
-    <output
-      id="clear-snackbar"
-      class="hidden fixed bottom-4 left-4 w-[calc(50%-1rem)] max-w-md bg-rose-50/80 dark:bg-rose-950/40 rounded-xl shadow-sm border border-rose-100 dark:border-rose-900/30 overflow-hidden z-50"
-      aria-live="polite"
-    >
-      <div class="flex items-center justify-between gap-3 px-4 py-3">
-        <p class="text-sm text-rose-700 dark:text-rose-300/90">Form cleared</p>
-        <button
-          type="button"
-          class="text-xs font-bold uppercase tracking-widest text-rose-700 dark:text-rose-300/90 hover:opacity-80"
-          onclick="undoClearAllTextFields()"
-          aria-label="Undo clear form"
-        >
-          Undo
-        </button>
-      </div>
-      <div class="h-1 bg-rose-200/70 dark:bg-rose-900/40">
-        <div id="clear-snackbar-timer" class="h-full w-full bg-rose-400 dark:bg-rose-400"></div>
-      </div>
-    </output>
-
     <script>
       let clearUndoSnapshot = null;
-      let clearSnackbarTimeoutId = null;
-      let clearAllLocked = false;
+      let clearUndoTimeoutId = null;
+      const clearAllTextFieldIds = ['title-input', 'link-input', 'text-input', 'custom_instruction_input'];
 
-      function setClearAllLocked(locked) {
-        clearAllLocked = locked;
+      function setClearAllButtonUndoState(isUndoState) {
+        const button = document.getElementById('clear-all-text-fields-btn');
+        const label = document.getElementById('clear-all-text-label');
+        const circle = document.getElementById('clear-all-undo-circle');
+        const activeRing = document.getElementById('clear-all-undo-active-ring');
+
+        if (!button) return;
+
+        if (label) {
+          label.textContent = isUndoState ? 'Undo' : 'Clear All Text Fields';
+          label.classList.toggle('text-rose-600', isUndoState);
+          label.classList.toggle('dark:text-rose-400', isUndoState);
+        }
+
+        if (circle) {
+          circle.classList.toggle('hidden', !isUndoState);
+          circle.classList.toggle('inline-block', isUndoState);
+        }
+
+        if (isUndoState && activeRing) {
+          activeRing.classList.remove('circle-countdown');
+          void activeRing.offsetWidth;
+          activeRing.classList.add('circle-countdown');
+        }
+
+      }
+
+      function hasAnyTextFieldValue() {
+        return clearAllTextFieldIds.some((id) => {
+          const element = document.getElementById(id);
+          return element && element.value.trim() !== '';
+        });
+      }
+
+      function updateClearAllButtonAvailability() {
         const button = document.getElementById('clear-all-text-fields-btn');
         if (!button) return;
-        button.disabled = locked;
+        button.disabled = !clearUndoSnapshot && !hasAnyTextFieldValue();
       }
 
       function toggleDarkMode() {
@@ -596,13 +612,29 @@
       }
 
       function clearAllTextFields() {
-        if (clearAllLocked) return;
+        if (clearUndoSnapshot) {
+          Object.entries(clearUndoSnapshot).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (!element) return;
+            element.value = value;
+            element.dispatchEvent(new Event('input', { bubbles: true }));
+          });
 
-        const ids = ['title-input', 'link-input', 'text-input', 'custom_instruction_input'];
+          clearUndoSnapshot = null;
+          clearTimeout(clearUndoTimeoutId);
+          setClearAllButtonUndoState(false);
+          updateClearAllButtonAvailability();
+          return;
+        }
+
+        if (!hasAnyTextFieldValue()) {
+          updateClearAllButtonAvailability();
+          return;
+        }
+
         clearUndoSnapshot = {};
-        setClearAllLocked(true);
 
-        ids.forEach((id) => {
+        clearAllTextFieldIds.forEach((id) => {
           const element = document.getElementById(id);
           if (!element) return;
           clearUndoSnapshot[id] = element.value || '';
@@ -611,52 +643,27 @@
         });
 
         window.dispatchEvent(new CustomEvent('clear-fields'));
-        showClearSnackbar();
-      }
+        setClearAllButtonUndoState(true);
 
-      function showClearSnackbar() {
-        const snackbar = document.getElementById('clear-snackbar');
-        const timer = document.getElementById('clear-snackbar-timer');
-
-        if (!snackbar || !timer) {
-          setClearAllLocked(false);
-          return;
-        }
-
-        snackbar.classList.remove('hidden');
-        timer.classList.remove('snackbar-countdown');
-        void timer.offsetWidth;
-        timer.classList.add('snackbar-countdown');
-
-        clearTimeout(clearSnackbarTimeoutId);
-        clearSnackbarTimeoutId = setTimeout(() => {
-          hideClearSnackbar();
+        clearTimeout(clearUndoTimeoutId);
+        clearUndoTimeoutId = setTimeout(() => {
           clearUndoSnapshot = null;
-          setClearAllLocked(false);
+          setClearAllButtonUndoState(false);
+          updateClearAllButtonAvailability();
         }, 5000);
+
+        updateClearAllButtonAvailability();
       }
 
-      function hideClearSnackbar() {
-        const snackbar = document.getElementById('clear-snackbar');
-        if (!snackbar) return;
-        snackbar.classList.add('hidden');
-      }
-
-      function undoClearAllTextFields() {
-        if (!clearUndoSnapshot) return;
-
-        Object.entries(clearUndoSnapshot).forEach(([id, value]) => {
+      document.addEventListener('DOMContentLoaded', function() {
+        clearAllTextFieldIds.forEach((id) => {
           const element = document.getElementById(id);
           if (!element) return;
-          element.value = value;
-          element.dispatchEvent(new Event('input', { bubbles: true }));
+          element.addEventListener('input', updateClearAllButtonAvailability);
         });
 
-        clearUndoSnapshot = null;
-        clearTimeout(clearSnackbarTimeoutId);
-        hideClearSnackbar();
-        setClearAllLocked(false);
-      }
+        updateClearAllButtonAvailability();
+      });
 
       (function() {
           const sessionExpiry = {{ session_expiry | tojson }}; 
