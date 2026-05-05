@@ -355,18 +355,73 @@
           ></textarea>
         </div>
 
-        <button
-          id="clear-all-text-fields-btn"
-          type="button"
-          class="w-full py-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-bold uppercase tracking-widest hover:bg-zinc-100 dark:hover:bg-zinc-800"
-          onclick="clearAllTextFields()"
-        >
-          <span id="clear-all-text-label">Clear All Text Fields</span>
-          <svg id="clear-all-undo-circle" class="hidden w-3.5 h-3.5 ml-2 -translate-y-[1px] -rotate-90 text-rose-500 dark:text-rose-400" viewBox="0 0 18 18" aria-hidden="true">
-            <circle cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2" class="opacity-20" stroke-dasharray="44" stroke-dashoffset="0"/>
-            <circle id="clear-all-undo-active-ring" cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2" class="circle-countdown" stroke-dasharray="44" stroke-dashoffset="0"/>
-          </svg>
-        </button>
+        <div x-data="{
+          snapshot: null,
+          undoTimerId: null,
+          fieldIds: ['title-input', 'link-input', 'text-input', 'custom_instruction_input'],
+          hasAnyValue() {
+            return this.fieldIds.some((id) => {
+              const element = document.getElementById(id);
+              return element && element.value.trim() !== '';
+            });
+          },
+          clearAll() {
+            if (!this.hasAnyValue()) {
+              return;
+            }
+
+            this.snapshot = {};
+            this.fieldIds.forEach((id) => {
+              const element = document.getElementById(id);
+              if (!element) return;
+              this.snapshot[id] = element.value || '';
+              element.value = '';
+              element.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+
+            window.dispatchEvent(new CustomEvent('clear-fields'));
+            clearTimeout(this.undoTimerId);
+            this.undoTimerId = setTimeout(() => {
+              this.snapshot = null;
+            }, 5000);
+          },
+          undoAll() {
+            if (!this.snapshot) {
+              return;
+            }
+
+            Object.entries(this.snapshot).forEach(([id, value]) => {
+              const element = document.getElementById(id);
+              if (!element) return;
+              element.value = value;
+              element.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+
+            clearTimeout(this.undoTimerId);
+            this.snapshot = null;
+          },
+          toggleClearAll() {
+            if (this.snapshot !== null) {
+              this.undoAll();
+              return;
+            }
+            this.clearAll();
+          }
+        }">
+          <button
+            id="clear-all-text-fields-btn"
+            type="button"
+            @click="toggleClearAll()"
+            :disabled="snapshot === null && !hasAnyValue()"
+            class="w-full py-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-bold uppercase tracking-widest hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+          >
+            <span x-text="snapshot !== null ? 'Undo' : 'Clear All Text Fields'" :class="snapshot !== null ? 'text-rose-600 dark:text-rose-400' : ''"></span>
+            <svg x-show="snapshot !== null" x-cloak class="w-3.5 h-3.5 shrink-0 -translate-y-[1px] -rotate-90 text-rose-500 dark:text-rose-400" style="display: inline-block;" viewBox="0 0 18 18" aria-hidden="true">
+              <circle cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2" class="opacity-20" stroke-dasharray="44" stroke-dashoffset="0"/>
+              <circle cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2" class="circle-countdown" stroke-dasharray="44" stroke-dashoffset="0"/>
+            </svg>
+          </button>
+        </div>
 
 				<div class="relative" x-data="{ open: false, selected: $persist('Instagram').as('persist_social_media_platform') }">
           <label for="social-media-picker" class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">
@@ -473,44 +528,6 @@
     </footer>
 
     <script>
-      let clearUndoSnapshot = null;
-      let clearUndoTimeoutId = null;
-      const clearAllTextFieldIds = ['title-input', 'link-input', 'text-input', 'custom_instruction_input'];
-
-      function setClearAllButtonUndoState(isUndoState) {
-        const button = document.getElementById('clear-all-text-fields-btn');
-        const label = document.getElementById('clear-all-text-label');
-        const circle = document.getElementById('clear-all-undo-circle');
-        const activeRing = document.getElementById('clear-all-undo-active-ring');
-
-        if (!button) return;
-
-        if (label) {
-          label.textContent = isUndoState ? 'Undo' : 'Clear All Text Fields';
-          label.classList.toggle('text-rose-600', isUndoState);
-          label.classList.toggle('dark:text-rose-400', isUndoState);
-        }
-
-        if (circle) {
-          circle.classList.toggle('hidden', !isUndoState);
-          circle.classList.toggle('inline-block', isUndoState);
-        }
-
-      }
-
-      function hasAnyTextFieldValue() {
-        return clearAllTextFieldIds.some((id) => {
-          const element = document.getElementById(id);
-          return element && element.value.trim() !== '';
-        });
-      }
-
-      function updateClearAllButtonAvailability() {
-        const button = document.getElementById('clear-all-text-fields-btn');
-        if (!button) return;
-        button.disabled = !clearUndoSnapshot && !hasAnyTextFieldValue();
-      }
-
       function toggleDarkMode() {
         const isDark = document.documentElement.classList.toggle('dark');
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
@@ -604,60 +621,6 @@
         const text = document.getElementById('caption-text').innerText;
         navigator.clipboard.writeText(text);
       }
-
-      function clearAllTextFields() {
-        if (clearUndoSnapshot) {
-          Object.entries(clearUndoSnapshot).forEach(([id, value]) => {
-            const element = document.getElementById(id);
-            if (!element) return;
-            element.value = value;
-            element.dispatchEvent(new Event('input', { bubbles: true }));
-          });
-
-          clearUndoSnapshot = null;
-          clearTimeout(clearUndoTimeoutId);
-          setClearAllButtonUndoState(false);
-          updateClearAllButtonAvailability();
-          return;
-        }
-
-        if (!hasAnyTextFieldValue()) {
-          updateClearAllButtonAvailability();
-          return;
-        }
-
-        clearUndoSnapshot = {};
-
-        clearAllTextFieldIds.forEach((id) => {
-          const element = document.getElementById(id);
-          if (!element) return;
-          clearUndoSnapshot[id] = element.value || '';
-          element.value = '';
-          element.dispatchEvent(new Event('input', { bubbles: true }));
-        });
-
-        window.dispatchEvent(new CustomEvent('clear-fields'));
-        setClearAllButtonUndoState(true);
-
-        clearTimeout(clearUndoTimeoutId);
-        clearUndoTimeoutId = setTimeout(() => {
-          clearUndoSnapshot = null;
-          setClearAllButtonUndoState(false);
-          updateClearAllButtonAvailability();
-        }, 5000);
-
-        updateClearAllButtonAvailability();
-      }
-
-      document.addEventListener('DOMContentLoaded', function() {
-        clearAllTextFieldIds.forEach((id) => {
-          const element = document.getElementById(id);
-          if (!element) return;
-          element.addEventListener('input', updateClearAllButtonAvailability);
-        });
-
-        updateClearAllButtonAvailability();
-      });
 
       (function() {
           const sessionExpiry = {{ session_expiry | tojson }}; 
