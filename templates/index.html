@@ -364,7 +364,7 @@
           <span id="clear-all-text-label">Clear All Text Fields</span>
           <svg id="clear-all-undo-circle" class="hidden w-3.5 h-3.5 ml-2 -translate-y-[1px] -rotate-90 text-rose-500 dark:text-rose-400" viewBox="0 0 18 18" aria-hidden="true">
             <circle cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2" class="opacity-20" stroke-dasharray="44" stroke-dashoffset="0"/>
-            <circle id="clear-all-undo-active-ring" cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="44" stroke-dashoffset="0"/>
+            <circle id="clear-all-undo-active-ring" cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2" class="circle-countdown" stroke-dasharray="44" stroke-dashoffset="0"/>
           </svg>
         </button>
 
@@ -494,12 +494,6 @@
         if (circle) {
           circle.classList.toggle('hidden', !isUndoState);
           circle.classList.toggle('inline-block', isUndoState);
-        }
-
-        if (isUndoState && activeRing) {
-          activeRing.classList.remove('circle-countdown');
-          void activeRing.offsetWidth;
-          activeRing.classList.add('circle-countdown');
         }
 
       }
