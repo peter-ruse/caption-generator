@@ -358,12 +358,19 @@
         <div x-data="{
           snapshot: null,
           undoTimerId: null,
+          hasValues: false,
           fieldIds: ['title-input', 'link-input', 'text-input', 'custom_instruction_input'],
-          hasAnyValue() {
-            return this.fieldIds.some((id) => {
+          init() {
+            this.refreshHasValues();
+          },
+          refreshHasValues() {
+            this.hasValues = this.fieldIds.some((id) => {
               const element = document.getElementById(id);
               return element && element.value.trim() !== '';
             });
+          },
+          hasAnyValue() {
+            return this.hasValues;
           },
           clearAll() {
             if (!this.hasAnyValue()) {
@@ -407,12 +414,12 @@
             }
             this.clearAll();
           }
-        }">
+        }" @input.window="refreshHasValues()">
           <button
             id="clear-all-text-fields-btn"
             type="button"
             @click="toggleClearAll()"
-            :disabled="snapshot === null && !hasAnyValue()"
+            :disabled="snapshot === null && !hasValues"
             class="w-full py-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-bold uppercase tracking-widest hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
           >
             <span x-text="snapshot !== null ? 'Undo' : 'Clear All Text Fields'" :class="snapshot !== null ? 'text-rose-600 dark:text-rose-400' : ''"></span>
